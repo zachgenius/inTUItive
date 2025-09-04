@@ -1,0 +1,6 @@
+#ifndef INTUITIVE_TUI_LIBRARY_H
+#define INTUITIVE_TUI_LIBRARY_H
+
+void hello(void);
+
+#endif //INTUITIVE_TUI_LIBRARY_H
