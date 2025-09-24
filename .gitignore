@@ -36,3 +36,4 @@ cmake-build-*/
 bin/
 build/
 build-*/
+CLAUDE.md
