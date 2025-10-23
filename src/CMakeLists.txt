@@ -1,12 +1,23 @@
 project(intuitive C)
 # Source files for the main library
 set(INTUITIVE_TUI_SOURCES
-    library.c
+    terminal.c
+    component.c
+    layout.c
+    renderer.c
+    tui.c
+    components/text.c
+    components/vstack.c
+    components/hstack.c
 )
 
 # Create both shared and static libraries
 add_library(intuitive SHARED ${INTUITIVE_TUI_SOURCES})
 add_library(intuitive_static STATIC ${INTUITIVE_TUI_SOURCES})
+
+# Add include directories
+target_include_directories(intuitive PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(intuitive_static PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Set the same output name for both libraries
 set_target_properties(intuitive_static PROPERTIES OUTPUT_NAME intuitive)
@@ -15,13 +26,13 @@ set_target_properties(intuitive_static PROPERTIES OUTPUT_NAME intuitive)
 set_target_properties(intuitive PROPERTIES
     VERSION 0.1.0
     SOVERSION 0
-    PUBLIC_HEADER "../include/library.h"
+    PUBLIC_HEADER "../include/intuitive.h"
 )
 
 # Set library properties for static library
 set_target_properties(intuitive_static PROPERTIES
     VERSION 0.1.0
-    PUBLIC_HEADER "../include/library.h"
+    PUBLIC_HEADER "../include/intuitive.h"
 )
 
 # Platform-specific configurations

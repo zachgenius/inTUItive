@@ -3,22 +3,22 @@ project(demo C)
 # Option to choose between static and shared linking
 option(USE_STATIC_LIB "Link with static library instead of shared" OFF)
 
-# Demo application
-add_executable(demo demo.c)
+# Hello World example (Phase 0 milestone)
+add_executable(hello_world hello_world.c)
 
 # Link with either static or shared library
 if(USE_STATIC_LIB)
-    target_link_libraries(demo intuitive_static)
+    target_link_libraries(hello_world intuitive_static)
 else()
-    target_link_libraries(demo intuitive)
+    target_link_libraries(hello_world intuitive)
 endif()
 
 # Set output directory for examples
-set_target_properties(demo PROPERTIES
+set_target_properties(hello_world PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples
 )
 
 # Installation rules for examples
-install(TARGETS demo
+install(TARGETS hello_world
     RUNTIME DESTINATION bin/examples
 )
