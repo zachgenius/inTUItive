@@ -1,6 +1,3 @@
-#ifndef INTUITIVE_TUI_LIBRARY_H
-#define INTUITIVE_TUI_LIBRARY_H
+#pragma once
 
 void hello(void);
-
-#endif //INTUITIVE_TUI_LIBRARY_H
