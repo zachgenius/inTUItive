@@ -6,9 +6,13 @@ set(INTUITIVE_TUI_SOURCES
     layout.c
     renderer.c
     tui.c
+    events.c
+    focus.c
     components/text.c
     components/vstack.c
     components/hstack.c
+    components/button.c
+    components/input.c
 )
 
 # Create both shared and static libraries

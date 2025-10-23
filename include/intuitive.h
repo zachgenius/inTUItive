@@ -1,5 +1,6 @@
-#ifndef INTUITIVE_H
-#define INTUITIVE_H
+#pragma once
+
+#include <stddef.h>
 
 /**
  * inTUItive - A declarative TUI framework for C
@@ -49,6 +50,12 @@ void tui_set_root(component_t* (*root_fn)(void));
  */
 void tui_run(void);
 
+/**
+ * Request a re-render on the next event loop iteration
+ * Call this after modifying application state
+ */
+void tui_request_render(void);
+
 /* ========== Components ========== */
 
 /**
@@ -75,4 +82,29 @@ component_t* VStack(component_t* first, ...);
  */
 component_t* HStack(component_t* first, ...);
 
-#endif // INTUITIVE_H
+/**
+ * Create a VStack from a NULL-terminated array of components
+ * Useful when the number of children is dynamic
+ *
+ * Example: VStackArray(items) where items is component_t*[]
+ */
+component_t* VStackArray(component_t** children);
+
+/**
+ * Create a Button component
+ * Displays a clickable button that calls on_click when activated (Enter/Space)
+ * Focusable via Tab key
+ *
+ * Example: Button("Click me", my_callback)
+ */
+component_t* Button(const char* label, void (*on_click)(void));
+
+/**
+ * Create an Input component
+ * Text input field that edits the provided buffer
+ * Focusable via Tab key
+ * Supports typing, backspace, and arrow key navigation
+ *
+ * Example: Input(my_buffer, sizeof(my_buffer))
+ */
+component_t* Input(char* buffer, size_t size);

@@ -1,5 +1,4 @@
-#ifndef INTUITIVE_COMPONENT_H
-#define INTUITIVE_COMPONENT_H
+#pragma once
 
 #include <stddef.h>
 #include <stdbool.h>
@@ -11,6 +10,8 @@ typedef enum {
     COMPONENT_TEXT,
     COMPONENT_VSTACK,
     COMPONENT_HSTACK,
+    COMPONENT_BUTTON,
+    COMPONENT_INPUT,
 } component_type_t;
 
 /**
@@ -28,8 +29,13 @@ struct component_t {
     int child_capacity;  // For dynamic array growth
 
     // Layout information (computed during layout pass)
-    int x, y;           // Position
-    int width, height;  // Size
+    int x, y;
+    int width, height;
+
+    // Focus information
+    bool focusable;
+    bool focused;
+    int focus_index;
 };
 
 /**
@@ -38,6 +44,24 @@ struct component_t {
 typedef struct {
     char* content;
 } text_data_t;
+
+/**
+ * Button component data
+ */
+typedef struct {
+    char* label;
+    void (*on_click)(void);
+} button_data_t;
+
+/**
+ * Input component data
+ */
+typedef struct {
+    char* buffer;
+    size_t buffer_size;
+    size_t cursor_pos;
+    size_t scroll_offset;
+} input_data_t;
 
 /**
  * Create a new component of the given type
@@ -60,5 +84,3 @@ void component_free(struct component_t* component);
  * Set component data (takes ownership)
  */
 void component_set_data(struct component_t* component, void* data);
-
-#endif // INTUITIVE_COMPONENT_H

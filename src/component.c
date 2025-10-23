@@ -18,6 +18,9 @@ struct component_t* component_create(component_type_t type) {
     component->y = 0;
     component->width = 0;
     component->height = 0;
+    component->focusable = false;
+    component->focused = false;
+    component->focus_index = -1;
 
     return component;
 }
@@ -57,9 +60,19 @@ void component_free(struct component_t* component) {
                 free(text_data);
                 break;
             }
+            case COMPONENT_BUTTON: {
+                button_data_t* button_data = (button_data_t*)component->data;
+                free(button_data->label);
+                free(button_data);
+                break;
+            }
+            case COMPONENT_INPUT: {
+                input_data_t* input_data = (input_data_t*)component->data;
+                free(input_data);
+                break;
+            }
             case COMPONENT_VSTACK:
             case COMPONENT_HSTACK:
-                // Container components don't have additional data to free
                 break;
         }
     }

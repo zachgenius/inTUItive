@@ -1,5 +1,4 @@
-#ifndef INTUITIVE_LAYOUT_H
-#define INTUITIVE_LAYOUT_H
+#pragma once
 
 #include "component.h"
 
@@ -20,5 +19,3 @@ void layout_measure(struct component_t* component);
  * its parent's position and layout rules.
  */
 void layout_position(struct component_t* component, int x, int y);
-
-#endif // INTUITIVE_LAYOUT_H

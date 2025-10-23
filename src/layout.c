@@ -18,6 +18,30 @@ static void measure_component(struct component_t* component) {
             break;
         }
 
+        case COMPONENT_BUTTON: {
+            button_data_t* data = (button_data_t*)component->data;
+            component->width = data->label ? strlen(data->label) + 2 : 2;
+            component->height = 1;
+            break;
+        }
+
+        case COMPONENT_INPUT: {
+            input_data_t* data = (input_data_t*)component->data;
+            size_t content_len = strlen(data->buffer);
+            size_t min_width = 20;
+            size_t max_width = 60;
+
+            if (content_len < min_width) {
+                component->width = min_width + 2;
+            } else if (content_len > max_width) {
+                component->width = max_width + 2;
+            } else {
+                component->width = content_len + 2;
+            }
+            component->height = 1;
+            break;
+        }
+
         case COMPONENT_VSTACK: {
             // VStack: width = max(children), height = sum(children)
             int max_width = 0;
@@ -79,10 +103,10 @@ void layout_position(struct component_t* component, int x, int y) {
     component->x = x;
     component->y = y;
 
-    // Position children based on layout type
     switch (component->type) {
         case COMPONENT_TEXT:
-            // Leaf component, no children to position
+        case COMPONENT_BUTTON:
+        case COMPONENT_INPUT:
             break;
 
         case COMPONENT_VSTACK: {

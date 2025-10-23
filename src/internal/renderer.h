@@ -1,5 +1,4 @@
-#ifndef INTUITIVE_RENDERER_H
-#define INTUITIVE_RENDERER_H
+#pragma once
 
 #include "component.h"
 
@@ -12,5 +11,3 @@
  * Recursively renders the component and all its children
  */
 void render_component(struct component_t* component);
-
-#endif // INTUITIVE_RENDERER_H

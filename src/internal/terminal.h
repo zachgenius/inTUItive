@@ -1,5 +1,4 @@
-#ifndef INTUITIVE_TERMINAL_H
-#define INTUITIVE_TERMINAL_H
+#pragma once
 
 #include <stdbool.h>
 
@@ -57,5 +56,3 @@ void term_hide_cursor(void);
  * Show the cursor
  */
 void term_show_cursor(void);
-
-#endif // INTUITIVE_TERMINAL_H
