@@ -93,12 +93,21 @@ else()
     target_link_libraries(layout_demo intuitive)
 endif()
 
+# ScrollBar demo example
+add_executable(scrollbar_demo scrollbar_demo.c)
+
+if(USE_STATIC_LIB)
+    target_link_libraries(scrollbar_demo intuitive_static)
+else()
+    target_link_libraries(scrollbar_demo intuitive)
+endif()
+
 # Set output directory for examples
-set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo mouse_demo layout_demo PROPERTIES
+set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo mouse_demo layout_demo scrollbar_demo PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples
 )
 
 # Installation rules for examples
-install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo mouse_demo layout_demo
+install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo mouse_demo layout_demo scrollbar_demo
     RUNTIME DESTINATION bin/examples
 )

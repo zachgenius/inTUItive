@@ -195,14 +195,6 @@ void render_component(struct component_t* component) {
                     }
                 }
 
-                // Show focus indicator if focused
-                if (component->focused) {
-                    term_move_cursor(component->x - 2, component->y);
-                    term_write(">");
-                    term_move_cursor(component->x + component->width, component->y);
-                    term_write("<");
-                }
-
                 // Set clipping rectangle to viewport bounds
                 render_set_clip(component->x, component->y, component->width, component->height);
 
@@ -212,22 +204,57 @@ void render_component(struct component_t* component) {
                 // Clear clipping
                 render_clear_clip();
 
-                // Show scroll indicators if enabled
+                // Draw scroll bar if there's scrollable content
                 if (data->show_indicators) {
                     int scroll_offset = data->scroll_offset ? *data->scroll_offset : 0;
                     int content_height = data->content->height;
                     int viewport_height = component->height;
 
-                    // Show up arrow if there's content above
-                    if (scroll_offset > 0) {
-                        term_move_cursor(component->x + component->width + 1, component->y);
-                        term_write("▲");
-                    }
+                    if (content_height > viewport_height) {
+                        int scrollbar_x = component->x + component->width + 1;
 
-                    // Show down arrow if there's content below
-                    if (scroll_offset + viewport_height < content_height) {
-                        term_move_cursor(component->x + component->width + 1, component->y + viewport_height - 1);
-                        term_write("▼");
+                        // Calculate thumb position and size
+                        // thumb_size = (viewport / content) * viewport
+                        int thumb_size = (viewport_height * viewport_height) / content_height;
+                        if (thumb_size < 1) thumb_size = 1;
+                        if (thumb_size > viewport_height) thumb_size = viewport_height;
+
+                        // thumb_pos = (scroll / max_scroll) * (viewport - thumb_size)
+                        int max_scroll = content_height - viewport_height;
+                        int thumb_travel = viewport_height - thumb_size;
+                        int thumb_pos = 0;
+                        if (max_scroll > 0) {
+                            thumb_pos = (scroll_offset * thumb_travel) / max_scroll;
+                        }
+
+                        // Draw the scroll bar
+                        for (int row = 0; row < viewport_height; row++) {
+                            term_move_cursor(scrollbar_x, component->y + row);
+
+                            if (row >= thumb_pos && row < thumb_pos + thumb_size) {
+                                // Draw thumb (use configured characters)
+                                if (component->focused) {
+                                    term_write(data->thumb_focused);
+                                } else {
+                                    term_write(data->thumb_unfocused);
+                                }
+                            } else {
+                                // Draw track (use configured character)
+                                term_write(data->track_char);
+                            }
+                        }
+
+                        // Draw arrows at top and bottom if configured and there's content in that direction
+                        if (data->show_arrows) {
+                            if (scroll_offset > 0) {
+                                term_move_cursor(scrollbar_x, component->y);
+                                term_write("▲");
+                            }
+                            if (scroll_offset + viewport_height < content_height) {
+                                term_move_cursor(scrollbar_x, component->y + viewport_height - 1);
+                                term_write("▼");
+                            }
+                        }
                     }
                 }
             }

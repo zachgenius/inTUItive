@@ -278,7 +278,11 @@ component_t* Modal(ModalConfig config);
  */
 typedef struct {
     int max_height;          // Maximum visible height of the viewport
-    bool show_indicators;    // Show ▲/▼ scroll indicators (default: true)
+    bool show_indicators;    // Show scroll bar (default: true)
+    const char* thumb_focused;    // Character for thumb when focused (default: "█")
+    const char* thumb_unfocused;  // Character for thumb when not focused (default: "▓")
+    const char* track_char;       // Character for track (default: "│")
+    bool show_arrows;        // Show ▲/▼ arrows (default: true)
 } ScrollConfig;
 
 /**
@@ -287,11 +291,22 @@ typedef struct {
  * Content taller than max_height can be scrolled with arrow keys
  * scroll_offset pointer stores the scroll position (persists across frames)
  *
- * Example:
+ * Example (with defaults):
  *   int scroll = 0;
  *   ScrollView(VStack(...long content..., NULL), &scroll, (ScrollConfig){
  *       .max_height = 10,
- *       .show_indicators = true
+ *       .show_indicators = true,
+ *       .show_arrows = true
+ *   })
+ *
+ * Example (custom appearance):
+ *   ScrollView(content, &scroll, (ScrollConfig){
+ *       .max_height = 20,
+ *       .show_indicators = true,
+ *       .thumb_focused = "■",      // Solid square when focused
+ *       .thumb_unfocused = "□",    // Hollow square when not focused
+ *       .track_char = "┆",         // Dotted line for track
+ *       .show_arrows = false       // No arrows
  *   })
  */
 component_t* ScrollView(component_t* content, int* scroll_offset, ScrollConfig config);
@@ -386,5 +401,5 @@ component_t* Underline(component_t* comp);
 #define LIST(items, count) (ListConfig){ .items = items, .count = count, .max_visible = 10, .scroll_offset = NULL, .selected_index = NULL, .on_select = NULL }
 #define LIST_SELECTABLE(items, count, scroll, selected, callback) (ListConfig){ .items = items, .count = count, .max_visible = 10, .scroll_offset = scroll, .selected_index = selected, .on_select = callback }
 #define MODAL(is_open, title, content, on_close) (ModalConfig){ .is_open = is_open, .title = title, .content = content, .on_close = on_close }
-#define SCROLLVIEW(height, show_indicators) (ScrollConfig){ .max_height = height, .show_indicators = show_indicators }
+#define SCROLLVIEW(height, show_indicators) (ScrollConfig){ .max_height = height, .show_indicators = show_indicators, .thumb_focused = NULL, .thumb_unfocused = NULL, .track_char = NULL, .show_arrows = true }
 #define TABLE(headers, rows, cols, rows_count, borders) (TableConfig){ .headers = headers, .rows = rows, .column_count = cols, .row_count = rows_count, .show_borders = borders }

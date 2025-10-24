@@ -104,7 +104,11 @@ typedef struct {
     struct component_t* content;
     int* scroll_offset;  // Pointer to external state
     int max_visible_height;
-    bool show_indicators;  // Whether to show scroll indicators (▲/▼)
+    bool show_indicators;     // Whether to show scroll bar
+    const char* thumb_focused;    // Character for thumb when focused
+    const char* thumb_unfocused;  // Character for thumb when not focused
+    const char* track_char;       // Character for track
+    bool show_arrows;         // Whether to show ▲/▼ arrows
 } scrollview_data_t;
 
 /**

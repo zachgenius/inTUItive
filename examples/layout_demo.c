@@ -157,7 +157,8 @@ static component_t* app(void) {
         Text(""),
         ScrollView(content, &state.scroll_offset, (ScrollConfig){
             .max_height = viewport_height,
-            .show_indicators = true
+            .show_indicators = true,
+            .show_arrows = true
         }),
         Text(""),
         FgColor(Text("Press 'q' to quit"), COLOR_BRIGHT_BLACK),
