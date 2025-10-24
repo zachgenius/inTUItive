@@ -380,6 +380,19 @@ void render_component(struct component_t* component) {
             break;
         }
 
+        case COMPONENT_PADDING: {
+            padding_data_t* data = (padding_data_t*)component->data;
+            if (data && data->child) {
+                // Just render the child - layout already positioned it with padding offset
+                render_component(data->child);
+            }
+            break;
+        }
+
+        case COMPONENT_SPACER:
+            // Spacer renders nothing - it only affects layout
+            break;
+
         case COMPONENT_VSTACK:
         case COMPONENT_HSTACK:
             for (int i = 0; i < component->child_count; i++) {

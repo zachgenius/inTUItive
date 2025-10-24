@@ -131,6 +131,12 @@ static void measure_component(struct component_t* component) {
                 total_height += child->height;
             }
 
+            // Add spacing between children if configured
+            stack_data_t* data = (stack_data_t*)component->data;
+            if (data && data->spacing > 0 && component->child_count > 1) {
+                total_height += data->spacing * (component->child_count - 1);
+            }
+
             component->width = max_width;
             component->height = total_height;
             break;
@@ -149,8 +155,35 @@ static void measure_component(struct component_t* component) {
                 }
             }
 
+            // Add spacing between children if configured
+            stack_data_t* data = (stack_data_t*)component->data;
+            if (data && data->spacing > 0 && component->child_count > 1) {
+                total_width += data->spacing * (component->child_count - 1);
+            }
+
             component->width = total_width;
             component->height = max_height;
+            break;
+        }
+
+        case COMPONENT_PADDING: {
+            padding_data_t* data = (padding_data_t*)component->data;
+            if (data && data->child) {
+                // Padding adds to child's dimensions
+                component->width = data->child->width + data->padding.left + data->padding.right;
+                component->height = data->child->height + data->padding.top + data->padding.bottom;
+            } else {
+                component->width = 0;
+                component->height = 0;
+            }
+            break;
+        }
+
+        case COMPONENT_SPACER: {
+            // Spacer has flexible size - measure phase gives it 0 size
+            // Layout phase will expand it to fill available space
+            component->width = 0;
+            component->height = 0;
             break;
         }
     }
@@ -166,7 +199,7 @@ void layout_measure(struct component_t* component) {
         layout_measure(component->children[i]);
     }
 
-    // For modals and scrollviews, also measure the content
+    // For modals, scrollviews, and padding, also measure the content/child
     if (component->type == COMPONENT_MODAL) {
         modal_data_t* data = (modal_data_t*)component->data;
         if (data && data->content) {
@@ -176,6 +209,11 @@ void layout_measure(struct component_t* component) {
         scrollview_data_t* data = (scrollview_data_t*)component->data;
         if (data && data->content) {
             layout_measure(data->content);
+        }
+    } else if (component->type == COMPONENT_PADDING) {
+        padding_data_t* data = (padding_data_t*)component->data;
+        if (data && data->child) {
+            layout_measure(data->child);
         }
     }
 
@@ -197,6 +235,8 @@ void layout_position(struct component_t* component, int x, int y) {
         case COMPONENT_BUTTON:
         case COMPONENT_INPUT:
         case COMPONENT_LIST:
+        case COMPONENT_TABLE:
+        case COMPONENT_SPACER:
             break;
 
         case COMPONENT_MODAL: {
@@ -228,24 +268,61 @@ void layout_position(struct component_t* component, int x, int y) {
             break;
         }
 
+        case COMPONENT_PADDING: {
+            padding_data_t* data = (padding_data_t*)component->data;
+            if (data && data->child) {
+                // Position child inside padding
+                int child_x = x + data->padding.left;
+                int child_y = y + data->padding.top;
+                layout_position(data->child, child_x, child_y);
+            }
+            break;
+        }
+
         case COMPONENT_VSTACK: {
+            stack_data_t* data = (stack_data_t*)component->data;
+            int spacing = data ? data->spacing : 0;
+            alignment_t alignment = data ? data->alignment : ALIGN_START;
+
             // Stack children vertically
             int current_y = y;
             for (int i = 0; i < component->child_count; i++) {
                 struct component_t* child = component->children[i];
-                layout_position(child, x, current_y);
-                current_y += child->height;
+
+                // Handle horizontal alignment
+                int child_x = x;
+                if (alignment == ALIGN_CENTER) {
+                    child_x = x + (component->width - child->width) / 2;
+                } else if (alignment == ALIGN_END) {
+                    child_x = x + (component->width - child->width);
+                }
+
+                layout_position(child, child_x, current_y);
+                current_y += child->height + spacing;
             }
             break;
         }
 
         case COMPONENT_HSTACK: {
+            stack_data_t* data = (stack_data_t*)component->data;
+            int spacing = data ? data->spacing : 0;
+            alignment_t alignment = data ? data->alignment : ALIGN_START;
+
             // Stack children horizontally
             int current_x = x;
             for (int i = 0; i < component->child_count; i++) {
                 struct component_t* child = component->children[i];
-                layout_position(child, current_x, y);
-                current_x += child->width;
+
+                // Handle vertical alignment
+                int child_y = y;
+                if (alignment == ALIGN_CENTER) {
+                    child_y = y + (component->height - child->height) / 2;
+                } else if (alignment == ALIGN_END) {
+                    child_y = y + (component->height - child->height);
+                }
+
+                layout_position(child, current_x, child_y);
+                current_x += child->width + spacing;
             }
             break;
         }
