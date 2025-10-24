@@ -203,6 +203,14 @@ static void measure_component(struct component_t* component) {
             component->height = 0;
             break;
         }
+
+        case COMPONENT_TOAST: {
+            // Toast positions itself absolutely during rendering
+            // It doesn't participate in parent layout flow
+            component->width = 0;
+            component->height = 0;
+            break;
+        }
     }
 }
 
@@ -255,6 +263,8 @@ void layout_position(struct component_t* component, int x, int y) {
         case COMPONENT_TABLE:
         case COMPONENT_SPACER:
         case COMPONENT_SPINNER:
+        case COMPONENT_TOAST:
+            // These components don't have children or position themselves
             break;
 
         case COMPONENT_MODAL: {

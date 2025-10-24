@@ -415,6 +415,54 @@ typedef struct {
  */
 component_t* Spinner(SpinnerConfig config);
 
+/**
+ * Toast position types
+ */
+typedef enum {
+    TOAST_TOP,           /* Top center */
+    TOAST_BOTTOM,        /* Bottom center */
+    TOAST_TOP_RIGHT,     /* Top right corner */
+    TOAST_BOTTOM_RIGHT,  /* Bottom right corner */
+} toast_position_t;
+
+/**
+ * Toast configuration
+ */
+typedef struct {
+    const char* message;        // Toast message text
+    bool* is_visible;           // Pointer to visibility state
+    toast_position_t position;  // Position on screen (default: TOAST_BOTTOM)
+    int duration_ms;            // Auto-dismiss duration in ms (0 = no auto-dismiss)
+    void (*on_close)(void);     // Optional callback when toast closes (can be NULL)
+} ToastConfig;
+
+/**
+ * Create a Toast notification component
+ * Displays a temporary message with slide-in/slide-out animations
+ * Only renders when *is_visible is true
+ * Automatically dismisses after duration_ms if set
+ *
+ * Example (basic):
+ *   bool show_toast = true;
+ *   Toast((ToastConfig){
+ *       .message = "File saved!",
+ *       .is_visible = &show_toast,
+ *       .position = TOAST_BOTTOM,
+ *       .duration_ms = 2000,
+ *       .on_close = close_toast
+ *   })
+ *
+ * Example (no auto-dismiss):
+ *   Toast((ToastConfig){
+ *       .message = "Processing...",
+ *       .is_visible = &show_toast,
+ *       .position = TOAST_TOP_RIGHT,
+ *       .duration_ms = 0,  // No auto-dismiss
+ *       .on_close = NULL
+ *   })
+ */
+component_t* Toast(ToastConfig config);
+
 /* ========== Convenience Macros ========== */
 
 /**

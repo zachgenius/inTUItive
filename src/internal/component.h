@@ -22,6 +22,7 @@ typedef enum {
     COMPONENT_PADDING,
     COMPONENT_SPACER,
     COMPONENT_SPINNER,
+    COMPONENT_TOAST,
 } component_type_t;
 
 /**
@@ -167,6 +168,32 @@ typedef struct {
     const char* text;
     float* progress;  // Optional: if set, shows progress percentage
 } spinner_data_t;
+
+/**
+ * Toast animation state
+ */
+typedef enum {
+    TOAST_STATE_SLIDING_IN,
+    TOAST_STATE_VISIBLE,
+    TOAST_STATE_SLIDING_OUT,
+    TOAST_STATE_HIDDEN,
+} toast_state_t;
+
+/**
+ * Toast component data
+ */
+typedef struct {
+    char* message;
+    bool* is_visible;
+    toast_position_t position;
+    int duration_ms;
+    void (*on_close)(void);
+
+    // Animation state
+    toast_state_t state;
+    animation_t* slide_animation;  // Slide animation (can be NULL)
+    uint64_t visible_start_time;   // When toast became visible (for auto-dismiss)
+} toast_data_t;
 
 /**
  * Create a new component of the given type

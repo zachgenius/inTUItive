@@ -23,6 +23,7 @@ set(INTUITIVE_TUI_SOURCES
     components/padding.c
     components/spacer.c
     components/spinner.c
+    components/toast.c
 )
 
 # Create both shared and static libraries
