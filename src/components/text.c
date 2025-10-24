@@ -3,29 +3,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-/**
- * Create a Text component
- * Returns a new component displaying the given text
- */
-component_t* Text(const char* str) {
-    if (!str) {
+component_t* Text(const char* content, TextConfig config) {
+    if (!content) {
         return NULL;
     }
 
-    // Create component
     component_t* component = component_create(COMPONENT_TEXT);
     if (!component) {
         return NULL;
     }
 
-    // Allocate and set text data
     text_data_t* data = malloc(sizeof(text_data_t));
     if (!data) {
         component_free(component);
         return NULL;
     }
 
-    data->content = strdup(str);
+    data->content = strdup(content);
     if (!data->content) {
         free(data);
         component_free(component);
@@ -33,6 +27,11 @@ component_t* Text(const char* str) {
     }
 
     component_set_data(component, data);
+
+    // Apply styling from config (zero values are treated as defaults)
+    component->fg_color = config.fg_color;
+    component->bg_color = config.bg_color;
+    component->style = config.style;
 
     return component;
 }

@@ -2,7 +2,9 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "../include/intuitive.h"
+#include "animation.h"
 
 /**
  * Component types
@@ -19,6 +21,8 @@ typedef enum {
     COMPONENT_TABLE,
     COMPONENT_PADDING,
     COMPONENT_SPACER,
+    COMPONENT_SPINNER,
+    COMPONENT_TOAST,
 } component_type_t;
 
 /**
@@ -89,6 +93,11 @@ typedef struct {
     int max_visible_items;
     int* selected_index;         // Pointer to external selected index (optional)
     void (*on_select)(int index); // Callback when item selected (optional)
+
+    // Smooth scrolling animation state
+    float visual_scroll_offset;   // Current animated scroll position
+    int target_scroll_offset;     // Target scroll position
+    animation_t* scroll_animation; // Scroll animation (can be NULL)
 } list_data_t;
 
 /**
@@ -113,6 +122,11 @@ typedef struct {
     const char* thumb_unfocused;  // Character for thumb when not focused
     const char* track_char;       // Character for track
     bool show_arrows;         // Whether to show ▲/▼ arrows
+
+    // Smooth scrolling animation state
+    float visual_scroll_offset;   // Current animated scroll position
+    int target_scroll_offset;     // Target scroll position
+    animation_t* scroll_animation; // Scroll animation (can be NULL)
 } scrollview_data_t;
 
 /**
@@ -142,6 +156,28 @@ typedef struct {
     struct component_t* child;
     PaddingConfig padding;
 } padding_data_t;
+
+/**
+ * Spinner component data
+ */
+typedef struct {
+    spinner_style_t style;
+    int frame_index;
+    uint64_t last_update_time_us;
+    int speed_ms;
+    const char* text;
+    float* progress;  // Optional: if set, shows progress percentage
+} spinner_data_t;
+
+/**
+ * Toast component data
+ */
+typedef struct {
+    char* message;
+    bool* is_visible;
+    toast_position_t position;
+    void (*on_close)(void);
+} toast_data_t;
 
 /**
  * Create a new component of the given type

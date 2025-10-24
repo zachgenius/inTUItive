@@ -176,27 +176,30 @@ static component_t* app(void) {
     }
 
     // Header
-    items[idx++] = Bold(FgColor(Text("=== File Manager ==="), COLOR_BRIGHT_CYAN));
-    items[idx++] = Text("");
+    items[idx++] = Text("=== File Manager ===", (TextConfig){
+        .fg_color = COLOR_BRIGHT_CYAN,
+        .style = STYLE_BOLD
+    });
+    items[idx++] = Text("", TEXT_DEFAULT);
 
     // Current path
     char path_label[MAX_PATH + 20];
     snprintf(path_label, sizeof(path_label), "Path: %s", state.current_path);
-    items[idx++] = FgColor(Text(path_label), COLOR_BRIGHT_YELLOW);
-    items[idx++] = Text("");
+    items[idx++] = Text(path_label, (TextConfig){ .fg_color = COLOR_BRIGHT_YELLOW });
+    items[idx++] = Text("", TEXT_DEFAULT);
 
     // File count
     char count_label[64];
     snprintf(count_label, sizeof(count_label), "Items: %d", state.file_count);
-    items[idx++] = Text(count_label);
-    items[idx++] = Text("");
+    items[idx++] = Text(count_label, TEXT_DEFAULT);
+    items[idx++] = Text("", TEXT_DEFAULT);
 
     // File list
     // NOTE: Using List instead of ScrollView because List has built-in selection support.
     // ScrollView is better for non-interactive scrolling content (like logs, text documents).
     // List combines selection (Up/Down/Enter) + auto-scrolling in one component.
     if (state.file_count > 0) {
-        items[idx++] = Text("Files and Directories:");
+        items[idx++] = Text("Files and Directories:", TEXT_DEFAULT);
         items[idx++] = List((ListConfig){
             .items = (const char**)state.file_list,
             .count = state.file_count,
@@ -206,18 +209,20 @@ static component_t* app(void) {
             .on_select = on_select_file
         });
     } else {
-        items[idx++] = FgColor(Text("(empty directory)"), COLOR_BRIGHT_BLACK);
+        items[idx++] = Text("(empty directory)", (TextConfig){
+            .fg_color = COLOR_BRIGHT_BLACK
+        });
     }
 
-    items[idx++] = Text("");
-    items[idx++] = Text("");
+    items[idx++] = Text("", TEXT_DEFAULT);
+    items[idx++] = Text("", TEXT_DEFAULT);
 
     // Controls
-    items[idx++] = FgColor(Text("Controls:"), COLOR_BRIGHT_GREEN);
-    items[idx++] = Text("  Tab - Focus file list");
-    items[idx++] = Text("  Up/Down - Navigate list");
-    items[idx++] = Text("  Enter - Open directory");
-    items[idx++] = Text("  q - Quit");
+    items[idx++] = Text("Controls:", (TextConfig){ .fg_color = COLOR_BRIGHT_GREEN });
+    items[idx++] = Text("  Tab - Focus file list", TEXT_DEFAULT);
+    items[idx++] = Text("  Up/Down - Navigate list", TEXT_DEFAULT);
+    items[idx++] = Text("  Enter - Open directory", TEXT_DEFAULT);
+    items[idx++] = Text("  q - Quit", TEXT_DEFAULT);
 
     items[idx] = NULL;
 
@@ -230,7 +235,9 @@ static component_t* app(void) {
             Modal((ModalConfig){
                 .is_open = &state.show_error,
                 .title = "Error",
-                .content = FgColor(Text(state.error_msg), COLOR_BRIGHT_RED),
+                .content = Text(state.error_msg, (TextConfig){
+                    .fg_color = COLOR_BRIGHT_RED
+                }),
                 .on_close = close_error
             }),
             NULL

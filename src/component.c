@@ -84,6 +84,9 @@ void component_free(struct component_t* component) {
                     }
                     free(list_data->items);
                 }
+                if (list_data->scroll_animation) {
+                    anim_free(list_data->scroll_animation);
+                }
                 free(list_data);
                 break;
             }
@@ -97,6 +100,9 @@ void component_free(struct component_t* component) {
             case COMPONENT_SCROLLVIEW: {
                 scrollview_data_t* scrollview_data = (scrollview_data_t*)component->data;
                 component_free(scrollview_data->content);
+                if (scrollview_data->scroll_animation) {
+                    anim_free(scrollview_data->scroll_animation);
+                }
                 free(scrollview_data);
                 break;
             }
@@ -129,6 +135,17 @@ void component_free(struct component_t* component) {
                     component_free(padding_data->child);
                 }
                 free(padding_data);
+                break;
+            }
+            case COMPONENT_SPINNER: {
+                spinner_data_t* spinner_data = (spinner_data_t*)component->data;
+                free(spinner_data);
+                break;
+            }
+            case COMPONENT_TOAST: {
+                toast_data_t* toast_data = (toast_data_t*)component->data;
+                free(toast_data->message);
+                free(toast_data);
                 break;
             }
             case COMPONENT_SPACER:

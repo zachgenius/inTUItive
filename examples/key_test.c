@@ -18,13 +18,13 @@ component_t* app(void) {
              last_key);
 
     return VStack(
-        Text("Key Test - Press keys to see codes"),
-        Text(""),
-        Text(info),
-        Text(""),
+        Text("Key Test - Press keys to see codes", TEXT_DEFAULT),
+        Text("", TEXT_DEFAULT),
+        Text(info, TEXT_DEFAULT),
+        Text("", TEXT_DEFAULT),
         Button("Test Button", dummy),
-        Text(""),
-        Text("Press 'q' to quit"),
+        Text("", TEXT_DEFAULT),
+        Text("Press 'q' to quit", TEXT_DEFAULT),
         NULL
     );
 }

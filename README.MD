@@ -2,6 +2,8 @@
 
 > An inTUItive, declarative TUI framework starting from C
 
+⚠️ **Early Stage Project**: inTUItive is under active development. APIs are not stable yet and may change without notice. Use at your own risk, but feel free to experiment and provide feedback!
+
 inTUItive makes it easy to build beautiful terminal applications using modern declarative patterns. Write UI as functions, let the framework handle the rest.
 
 ## Why inTUItive?
@@ -43,10 +45,13 @@ That's it! No classes, no inheritance, no boilerplate.
 
 - **Declarative Components**: UI as pure functions
 - **Simple State**: Global state with automatic updates
-- **Layout System**: VStack, HStack for easy arrangements
-- **Interactive Elements**: Buttons, inputs, scrollviews with event handling
+- **Layout System**: VStack, HStack with alignment, spacing, and padding
+- **Interactive Elements**: Buttons, inputs, lists, tables, scrollviews
 - **Modern Styling**: Colors, bold, underline - all chainable!
 - **Config Structs**: SwiftUI/Compose-style API (named parameters, extensible)
+- **Mouse Support**: Full mouse interaction (click, scroll, hover)
+- **Visual Feedback**: Spinners, toast notifications, customizable scroll bars
+- **Performance**: Component diffing and reconciliation for efficient rendering
 
 ## Installation
 
@@ -80,6 +85,8 @@ List((ListConfig){ .items = items, .count = 5, .max_visible = 10, .scroll_offset
 Modal((ModalConfig){ .is_open = &open, .title = "Alert", .content = Text("Hi!"), .on_close = close })
 ScrollView(content, &scroll, (ScrollConfig){ .max_height = 10, .show_indicators = true })
 Table((TableConfig){ .headers = headers, .rows = rows, .column_count = 3, .row_count = 5, .show_borders = true })
+Spinner((SpinnerConfig){ .style = SPINNER_DOTS, .speed = 80, .text = "Loading...", .progress = &progress })
+Toast((ToastConfig){ .message = "Saved!", .is_visible = &visible, .position = TOAST_BOTTOM, .on_close = callback })
 
 // Style modifiers (chainable!)
 Bold(FgColor(Text("Error!"), COLOR_RED))
@@ -170,13 +177,19 @@ if (tui_get_terminal_size(&width, &height)) {
 - ✅ Customizable scroll bars
 - ✅ **Milestone**: System Monitor app with real-time updates
 
-### 📋 Phase 5: Future Ideas
-- Animations and transitions
-- Spinner/loading indicators
-- Smooth scrolling
-- Toast notifications
-- Modal slide-in transitions
+### ✅ Phase 5: Visual Enhancements (COMPLETE!)
+- ✅ Spinner/loading indicators with multiple styles
+- ✅ Smooth scrolling animations
+- ✅ Toast notifications
+- ✅ **Milestone**: Enhanced demos with spinners and toasts
+
+### 📋 Future Ideas
+- Progress bars with smooth animations
 - Custom key bindings
+- Text wrapping
+- Async/concurrent operations
+- Tree view component
+- Advanced table features (sorting, filtering, pagination)
 
 ## Examples
 
@@ -189,6 +202,12 @@ Check out the [`examples/`](examples/) directory (all working!):
 - **scrollview_demo**: ScrollView with vertical scrolling
 - **table_demo**: Table component with bordered/borderless modes
 - **file_manager**: Interactive file browser with auto-scrolling (Phase 3 milestone!)
+- **mouse_demo**: Full mouse support demonstration
+- **layout_demo**: Advanced layout system with alignment and spacing
+- **scrollbar_demo**: Customizable scroll bar showcase
+- **spinner_demo**: Loading indicators with multiple animation styles
+- **toast_demo**: Toast notifications at different positions
+- **sysmon**: System monitor with real-time CPU/memory updates (Phase 4 milestone!)
 
 ## Contributing
 

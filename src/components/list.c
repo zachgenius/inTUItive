@@ -45,6 +45,11 @@ component_t* List(ListConfig config) {
     data->selected_index = config.selected_index;
     data->on_select = config.on_select;
 
+    // Initialize smooth scrolling state
+    data->visual_scroll_offset = 0.0f;
+    data->target_scroll_offset = 0;
+    data->scroll_animation = NULL;
+
     component_set_data(list, data);
 
     // Make list focusable if it has selection support

@@ -3,44 +3,64 @@
 
 component_t* app(void) {
     return VStack(
-        Bold(Text("inTUItive Styling Demo")),
-        Text(""),
+        Text("inTUItive Styling Demo", (TextConfig){
+            .style = STYLE_BOLD
+        }),
+        Text("", TEXT_DEFAULT),
 
-        Text("=== Colors ==="),
-        FgColor(Text("Red text"), COLOR_RED),
-        FgColor(Text("Green text"), COLOR_GREEN),
-        FgColor(Text("Blue text"), COLOR_BLUE),
-        FgColor(Text("Yellow text"), COLOR_YELLOW),
-        FgColor(Text("Magenta text"), COLOR_MAGENTA),
-        FgColor(Text("Cyan text"), COLOR_CYAN),
-        Text(""),
+        Text("=== Colors ===", TEXT_DEFAULT),
+        Text("Red text", (TextConfig){ .fg_color = COLOR_RED }),
+        Text("Green text", (TextConfig){ .fg_color = COLOR_GREEN }),
+        Text("Blue text", (TextConfig){ .fg_color = COLOR_BLUE }),
+        Text("Yellow text", (TextConfig){ .fg_color = COLOR_YELLOW }),
+        Text("Magenta text", (TextConfig){ .fg_color = COLOR_MAGENTA }),
+        Text("Cyan text", (TextConfig){ .fg_color = COLOR_CYAN }),
+        Text("", TEXT_DEFAULT),
 
-        Text("=== Bright Colors ==="),
-        FgColor(Text("Bright Red text"), COLOR_BRIGHT_RED),
-        FgColor(Text("Bright Green text"), COLOR_BRIGHT_GREEN),
-        FgColor(Text("Bright Blue text"), COLOR_BRIGHT_BLUE),
-        FgColor(Text("Bright Yellow text"), COLOR_BRIGHT_YELLOW),
-        Text(""),
+        Text("=== Bright Colors ===", TEXT_DEFAULT),
+        Text("Bright Red text", (TextConfig){ .fg_color = COLOR_BRIGHT_RED }),
+        Text("Bright Green text", (TextConfig){ .fg_color = COLOR_BRIGHT_GREEN }),
+        Text("Bright Blue text", (TextConfig){ .fg_color = COLOR_BRIGHT_BLUE }),
+        Text("Bright Yellow text", (TextConfig){ .fg_color = COLOR_BRIGHT_YELLOW }),
+        Text("", TEXT_DEFAULT),
 
-        Text("=== Styles ==="),
-        Bold(Text("Bold text")),
-        Underline(Text("Underlined text")),
-        Bold(Underline(Text("Bold and underlined"))),
-        Text(""),
+        Text("=== Styles ===", TEXT_DEFAULT),
+        Text("Bold text", (TextConfig){ .style = STYLE_BOLD }),
+        Text("Underlined text", (TextConfig){ .style = STYLE_UNDERLINE }),
+        Text("Bold and underlined", (TextConfig){ .style = STYLE_BOLD | STYLE_UNDERLINE }),
+        Text("", TEXT_DEFAULT),
 
-        Text("=== Combined ==="),
-        Bold(FgColor(Text("Bold Red Error"), COLOR_RED)),
-        Bold(FgColor(Text("Bold Green Success"), COLOR_GREEN)),
-        Underline(FgColor(Text("Underlined Blue Link"), COLOR_BLUE)),
-        Text(""),
+        Text("=== Combined Styling ===", TEXT_DEFAULT),
+        Text("Bold Red Error", (TextConfig){
+            .fg_color = COLOR_RED,
+            .style = STYLE_BOLD
+        }),
+        Text("Bold Green Success", (TextConfig){
+            .fg_color = COLOR_GREEN,
+            .style = STYLE_BOLD
+        }),
+        Text("Underlined Blue Link", (TextConfig){
+            .fg_color = COLOR_BLUE,
+            .style = STYLE_UNDERLINE
+        }),
+        Text("", TEXT_DEFAULT),
 
-        Text("=== Background Colors ==="),
-        Color(Text(" White on Red "), COLOR_WHITE, COLOR_RED),
-        Color(Text(" Black on Yellow "), COLOR_BLACK, COLOR_YELLOW),
-        Color(Text(" White on Blue "), COLOR_WHITE, COLOR_BLUE),
-        Text(""),
+        Text("=== Background Colors ===", TEXT_DEFAULT),
+        Text(" White on Red ", (TextConfig){
+            .fg_color = COLOR_WHITE,
+            .bg_color = COLOR_RED
+        }),
+        Text(" Black on Yellow ", (TextConfig){
+            .fg_color = COLOR_BLACK,
+            .bg_color = COLOR_YELLOW
+        }),
+        Text(" White on Blue ", (TextConfig){
+            .fg_color = COLOR_WHITE,
+            .bg_color = COLOR_BLUE
+        }),
+        Text("", TEXT_DEFAULT),
 
-        Text("Press 'q' to quit"),
+        Text("Press 'q' to quit", TEXT_DEFAULT),
         NULL
     );
 }

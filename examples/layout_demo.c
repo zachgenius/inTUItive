@@ -15,153 +15,175 @@ static component_t* app(void) {
 
     component_t* content = VStack(
         // Section 1: Alignment
-        FgColor(Text("1. Horizontal Alignment in VStack"), COLOR_BRIGHT_YELLOW),
-        Text(""),
+        Text("1. Horizontal Alignment in VStack", (TextConfig){
+            .fg_color = COLOR_BRIGHT_YELLOW
+        }),
+        Text("", TEXT_DEFAULT),
 
-        Text("Left aligned (default):"),
+        Text("Left aligned (default):", TEXT_DEFAULT),
         AlignedVStack((StackConfig){
             .children = (component_t*[]){
-                Text("Short"),
-                Text("Medium text"),
-                Text("This is a longer piece of text"),
+                Text("Short", TEXT_DEFAULT),
+                Text("Medium text", TEXT_DEFAULT),
+                Text("This is a longer piece of text", TEXT_DEFAULT),
                 NULL
             },
             .alignment = ALIGN_START,
             .spacing = 0
         }),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
-        Text("Center aligned:"),
+        Text("Center aligned:", TEXT_DEFAULT),
         AlignedVStack((StackConfig){
             .children = (component_t*[]){
-                Text("Short"),
-                Text("Medium text"),
-                Text("This is a longer piece of text"),
+                Text("Short", TEXT_DEFAULT),
+                Text("Medium text", TEXT_DEFAULT),
+                Text("This is a longer piece of text", TEXT_DEFAULT),
                 NULL
             },
             .alignment = ALIGN_CENTER,
             .spacing = 0
         }),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
-        Text("Right aligned:"),
+        Text("Right aligned:", TEXT_DEFAULT),
         AlignedVStack((StackConfig){
             .children = (component_t*[]){
-                Text("Short"),
-                Text("Medium text"),
-                Text("This is a longer piece of text"),
+                Text("Short", TEXT_DEFAULT),
+                Text("Medium text", TEXT_DEFAULT),
+                Text("This is a longer piece of text", TEXT_DEFAULT),
                 NULL
             },
             .alignment = ALIGN_END,
             .spacing = 0
         }),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
         // Section 2: Spacing
-        FgColor(Text("2. Spacing Between Children"), COLOR_BRIGHT_YELLOW),
-        Text(""),
+        Text("2. Spacing Between Children", (TextConfig){
+            .fg_color = COLOR_BRIGHT_YELLOW
+        }),
+        Text("", TEXT_DEFAULT),
 
-        Text("No spacing:"),
+        Text("No spacing:", TEXT_DEFAULT),
         VStack(
-            Text("[Box 1]"),
-            Text("[Box 2]"),
-            Text("[Box 3]"),
+            Text("[Box 1]", TEXT_DEFAULT),
+            Text("[Box 2]", TEXT_DEFAULT),
+            Text("[Box 3]", TEXT_DEFAULT),
             NULL
         ),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
-        Text("Spacing = 1:"),
+        Text("Spacing = 1:", TEXT_DEFAULT),
         AlignedVStack((StackConfig){
             .children = (component_t*[]){
-                Text("[Box 1]"),
-                Text("[Box 2]"),
-                Text("[Box 3]"),
+                Text("[Box 1]", TEXT_DEFAULT),
+                Text("[Box 2]", TEXT_DEFAULT),
+                Text("[Box 3]", TEXT_DEFAULT),
                 NULL
             },
             .alignment = ALIGN_START,
             .spacing = 1
         }),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
         // Section 3: Padding
-        FgColor(Text("3. Padding"), COLOR_BRIGHT_YELLOW),
-        Text(""),
+        Text("3. Padding", (TextConfig){
+            .fg_color = COLOR_BRIGHT_YELLOW
+        }),
+        Text("", TEXT_DEFAULT),
 
-        Text("No padding:"),
-        FgColor(BgColor(Text("Content"), COLOR_BLUE), COLOR_WHITE),
-        Text(""),
+        Text("No padding:", TEXT_DEFAULT),
+        Text("Content", (TextConfig){
+            .fg_color = COLOR_WHITE,
+            .bg_color = COLOR_BLUE
+        }),
+        Text("", TEXT_DEFAULT),
 
-        Text("Padding all sides (2):"),
+        Text("Padding all sides (2):", TEXT_DEFAULT),
         Padded(
-            FgColor(BgColor(Text("Content"), COLOR_BLUE), COLOR_WHITE),
+            Text("Content", (TextConfig){
+                .fg_color = COLOR_WHITE,
+                .bg_color = COLOR_BLUE
+            }),
             (PaddingConfig){ .top = 2, .bottom = 2, .left = 2, .right = 2 }
         ),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
-        Text("Padding left/right only:"),
+        Text("Padding left/right only:", TEXT_DEFAULT),
         Padded(
-            FgColor(BgColor(Text("Content"), COLOR_BLUE), COLOR_WHITE),
+            Text("Content", (TextConfig){
+                .fg_color = COLOR_WHITE,
+                .bg_color = COLOR_BLUE
+            }),
             (PaddingConfig){ .top = 0, .bottom = 0, .left = 4, .right = 4 }
         ),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
         // Section 4: HStack alignment
-        FgColor(Text("4. Vertical Alignment in HStack"), COLOR_BRIGHT_YELLOW),
-        Text(""),
+        Text("4. Vertical Alignment in HStack", (TextConfig){
+            .fg_color = COLOR_BRIGHT_YELLOW
+        }),
+        Text("", TEXT_DEFAULT),
 
-        Text("Top aligned (default):"),
+        Text("Top aligned (default):", TEXT_DEFAULT),
         AlignedHStack((StackConfig){
             .children = (component_t*[]){
-                VStack(Text("A"), Text("B"), Text("C"), NULL),
-                VStack(Text("1"), NULL),
-                VStack(Text("X"), Text("Y"), NULL),
+                VStack(Text("A", TEXT_DEFAULT), Text("B", TEXT_DEFAULT), Text("C", TEXT_DEFAULT), NULL ),
+                VStack(Text("1", TEXT_DEFAULT), NULL ),
+                VStack(Text("X", TEXT_DEFAULT), Text("Y", TEXT_DEFAULT), NULL ),
                 NULL
             },
             .alignment = ALIGN_START,
             .spacing = 2
         }),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
-        Text("Center aligned:"),
+        Text("Center aligned:", TEXT_DEFAULT),
         AlignedHStack((StackConfig){
             .children = (component_t*[]){
-                VStack(Text("A"), Text("B"), Text("C"), NULL),
-                VStack(Text("1"), NULL),
-                VStack(Text("X"), Text("Y"), NULL),
+                VStack(Text("A", TEXT_DEFAULT), Text("B", TEXT_DEFAULT), Text("C", TEXT_DEFAULT), NULL ),
+                VStack(Text("1", TEXT_DEFAULT), NULL ),
+                VStack(Text("X", TEXT_DEFAULT), Text("Y", TEXT_DEFAULT), NULL ),
                 NULL
             },
             .alignment = ALIGN_CENTER,
             .spacing = 2
         }),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
-        Text("Bottom aligned:"),
+        Text("Bottom aligned:", TEXT_DEFAULT),
         AlignedHStack((StackConfig){
             .children = (component_t*[]){
-                VStack(Text("A"), Text("B"), Text("C"), NULL),
-                VStack(Text("1"), NULL),
-                VStack(Text("X"), Text("Y"), NULL),
+                VStack(Text("A", TEXT_DEFAULT), Text("B", TEXT_DEFAULT), Text("C", TEXT_DEFAULT), NULL ),
+                VStack(Text("1", TEXT_DEFAULT), NULL ),
+                VStack(Text("X", TEXT_DEFAULT), Text("Y", TEXT_DEFAULT), NULL ),
                 NULL
             },
             .alignment = ALIGN_END,
             .spacing = 2
         }),
-        Text(""),
+        Text("", TEXT_DEFAULT),
         NULL
     );
 
     return VStack(
-        Bold(FgColor(Text("=== Layout System Demo ==="), COLOR_BRIGHT_CYAN)),
-        Text(""),
-        FgColor(Text("Use ↑↓ arrow keys or mouse wheel to scroll"), COLOR_BRIGHT_YELLOW),
-        Text(""),
+        Text("=== Layout System Demo ===", (TextConfig){
+            .fg_color = COLOR_BRIGHT_CYAN,
+            .style = STYLE_BOLD
+        }),
+        Text("", TEXT_DEFAULT),
+        Text("Use ↑↓ arrow keys or mouse wheel to scroll", (TextConfig){
+            .fg_color = COLOR_BRIGHT_YELLOW
+        }),
+        Text("", TEXT_DEFAULT),
         ScrollView(content, &state.scroll_offset, (ScrollConfig){
             .max_height = viewport_height,
             .show_indicators = true,
             .show_arrows = true
         }),
-        Text(""),
-        FgColor(Text("Press 'q' to quit"), COLOR_BRIGHT_BLACK),
+        Text("", TEXT_DEFAULT),
+        Text("Press 'q' to quit", (TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
         NULL
     );
 }

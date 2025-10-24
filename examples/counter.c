@@ -28,21 +28,21 @@ component_t* app(void) {
     snprintf(count_text, sizeof(count_text), "Count: %d", state.count);
 
     return VStack(
-        Text("Counter Example"),
-        Text(""),
-        Text(count_text),
-        Text(""),
+        Text("Counter Example", TEXT_DEFAULT),
+        Text("", TEXT_DEFAULT),
+        Text(count_text, TEXT_DEFAULT),
+        Text("", TEXT_DEFAULT),
         HStack(
             Button("-", decrement),
-            Text("  "),
+            Text("  ", TEXT_DEFAULT),
             Button("+", increment),
-            Text("  "),
+            Text("  ", TEXT_DEFAULT),
             Button("Reset", reset),
             NULL
         ),
-        Text(""),
-        Text("Press Tab to navigate, Enter to activate"),
-        Text("Press 'q' to quit"),
+        Text("", TEXT_DEFAULT),
+        Text("Press Tab to navigate, Enter to activate", TEXT_DEFAULT),
+        Text("Press 'q' to quit", TEXT_DEFAULT),
         NULL
     );
 }

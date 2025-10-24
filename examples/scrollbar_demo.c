@@ -10,38 +10,43 @@ static app_state_t state = {0};
 
 static component_t* create_sample_content(void) {
     return VStack(
-        Text("Line 1"),
-        Text("Line 2"),
-        Text("Line 3"),
-        Text("Line 4"),
-        Text("Line 5"),
-        Text("Line 6"),
-        Text("Line 7"),
-        Text("Line 8"),
-        Text("Line 9"),
-        Text("Line 10"),
-        Text("Line 11"),
-        Text("Line 12"),
-        Text("Line 13"),
-        Text("Line 14"),
-        Text("Line 15"),
+        Text("Line 1", TEXT_DEFAULT),
+        Text("Line 2", TEXT_DEFAULT),
+        Text("Line 3", TEXT_DEFAULT),
+        Text("Line 4", TEXT_DEFAULT),
+        Text("Line 5", TEXT_DEFAULT),
+        Text("Line 6", TEXT_DEFAULT),
+        Text("Line 7", TEXT_DEFAULT),
+        Text("Line 8", TEXT_DEFAULT),
+        Text("Line 9", TEXT_DEFAULT),
+        Text("Line 10", TEXT_DEFAULT),
+        Text("Line 11", TEXT_DEFAULT),
+        Text("Line 12", TEXT_DEFAULT),
+        Text("Line 13", TEXT_DEFAULT),
+        Text("Line 14", TEXT_DEFAULT),
+        Text("Line 15", TEXT_DEFAULT),
         NULL
     );
 }
 
 static component_t* app(void) {
     return VStack(
-        Bold(FgColor(Text("=== ScrollBar Customization Demo ==="), COLOR_BRIGHT_CYAN)),
-        Text(""),
-        FgColor(Text("Tab between scroll views, use ↑↓ or mouse wheel to scroll"), COLOR_BRIGHT_YELLOW),
-        Text(""),
+        Text("=== ScrollBar Customization Demo ===", (TextConfig){
+            .fg_color = COLOR_BRIGHT_CYAN,
+            .style = STYLE_BOLD
+        }),
+        Text("", TEXT_DEFAULT),
+        Text("Tab between scroll views, use ↑↓ or mouse wheel to scroll", (TextConfig){
+            .fg_color = COLOR_BRIGHT_YELLOW
+        }),
+        Text("", TEXT_DEFAULT),
 
         // Default style
         HStack(
             VStack(
-                Bold(Text("Default Style:")),
-                Text("█ / ▓ / │ + arrows"),
-                Text(""),
+                Text("Default Style:", (TextConfig){ .style = STYLE_BOLD }),
+                Text("█ / ▓ / │ + arrows", TEXT_DEFAULT),
+                Text("", TEXT_DEFAULT),
                 ScrollView(create_sample_content(), &state.scroll1, (ScrollConfig){
                     .max_height = 8,
                     .show_indicators = true,
@@ -49,13 +54,13 @@ static component_t* app(void) {
                 }),
                 NULL
             ),
-            Text("    "),
+            Text("    ", TEXT_DEFAULT),
 
             // Square style
             VStack(
-                Bold(Text("Square Style:")),
-                Text("■ / □ / ┆ no arrows"),
-                Text(""),
+                Text("Square Style:", (TextConfig){ .style = STYLE_BOLD }),
+                Text("■ / □ / ┆ no arrows", TEXT_DEFAULT),
+                Text("", TEXT_DEFAULT),
                 ScrollView(create_sample_content(), &state.scroll2, (ScrollConfig){
                     .max_height = 8,
                     .show_indicators = true,
@@ -66,13 +71,13 @@ static component_t* app(void) {
                 }),
                 NULL
             ),
-            Text("    "),
+            Text("    ", TEXT_DEFAULT),
 
             // Circle style
             VStack(
-                Bold(Text("Circle Style:")),
-                Text("● / ○ / ┊ + arrows"),
-                Text(""),
+                Text("Circle Style:", (TextConfig){ .style = STYLE_BOLD }),
+                Text("● / ○ / ┊ + arrows", TEXT_DEFAULT),
+                Text("", TEXT_DEFAULT),
                 ScrollView(create_sample_content(), &state.scroll3, (ScrollConfig){
                     .max_height = 8,
                     .show_indicators = true,
@@ -85,14 +90,20 @@ static component_t* app(void) {
             ),
             NULL
         ),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
-        Text("Other options you can try:"),
-        FgColor(Text("  • thumb_focused: █ ■ ● ◆ ▮ ▪ ◼"), COLOR_BRIGHT_GREEN),
-        FgColor(Text("  • thumb_unfocused: ▓ □ ○ ◇ ▯ ▫ ◻"), COLOR_BRIGHT_GREEN),
-        FgColor(Text("  • track_char: │ ┆ ┊ ╎ ╏ ║ |"), COLOR_BRIGHT_GREEN),
-        Text(""),
-        FgColor(Text("Press 'q' to quit"), COLOR_BRIGHT_BLACK),
+        Text("Other options you can try:", TEXT_DEFAULT),
+        Text("  • thumb_focused: █ ■ ● ◆ ▮ ▪ ◼", (TextConfig){
+            .fg_color = COLOR_BRIGHT_GREEN
+        }),
+        Text("  • thumb_unfocused: ▓ □ ○ ◇ ▯ ▫ ◻", (TextConfig){
+            .fg_color = COLOR_BRIGHT_GREEN
+        }),
+        Text("  • track_char: │ ┆ ┊ ╎ ╏ ║ |", (TextConfig){
+            .fg_color = COLOR_BRIGHT_GREEN
+        }),
+        Text("", TEXT_DEFAULT),
+        Text("Press 'q' to quit", (TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
         NULL
     );
 }

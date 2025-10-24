@@ -102,6 +102,24 @@ else()
     target_link_libraries(scrollbar_demo intuitive)
 endif()
 
+# Spinner demo example
+add_executable(spinner_demo spinner_demo.c)
+
+if(USE_STATIC_LIB)
+    target_link_libraries(spinner_demo intuitive_static)
+else()
+    target_link_libraries(spinner_demo intuitive)
+endif()
+
+# Toast demo example
+add_executable(toast_demo toast_demo.c)
+
+if(USE_STATIC_LIB)
+    target_link_libraries(toast_demo intuitive_static)
+else()
+    target_link_libraries(toast_demo intuitive)
+endif()
+
 # System Monitor (Phase 4 milestone)
 add_executable(sysmon sysmon.c)
 
@@ -112,11 +130,11 @@ else()
 endif()
 
 # Set output directory for examples
-set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo mouse_demo layout_demo scrollbar_demo sysmon PROPERTIES
+set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo mouse_demo layout_demo scrollbar_demo spinner_demo toast_demo sysmon PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples
 )
 
 # Installation rules for examples
-install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo mouse_demo layout_demo scrollbar_demo sysmon
+install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo mouse_demo layout_demo scrollbar_demo spinner_demo toast_demo sysmon
     RUNTIME DESTINATION bin/examples
 )

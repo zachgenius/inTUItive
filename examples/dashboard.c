@@ -41,11 +41,11 @@ component_t* stat_bar(const char* label, int percentage, color_t color) {
     snprintf(percent_text, sizeof(percent_text), "%3d%%", percentage);
 
     return HStack(
-        Text(label),
-        Text(": ["),
-        FgColor(Text(bar), color),
-        Text("] "),
-        Bold(Text(percent_text)),
+        Text(label, TEXT_DEFAULT),
+        Text(": [", TEXT_DEFAULT),
+        Text(bar, (TextConfig){ .fg_color = color }),
+        Text("] ", TEXT_DEFAULT),
+        Text(percent_text, (TextConfig){ .style = STYLE_BOLD }),
         NULL
     );
 }
@@ -60,45 +60,48 @@ component_t* app(void) {
     };
 
     component_t* main_ui = VStack(
-        Bold(FgColor(Text("=== System Dashboard ==="), COLOR_BRIGHT_CYAN)),
-        Text(""),
+        Text("=== System Dashboard ===", (TextConfig){
+            .fg_color = COLOR_BRIGHT_CYAN,
+            .style = STYLE_BOLD
+        }),
+        Text("", TEXT_DEFAULT),
 
-        FgColor(Text("System Resources:"), COLOR_BRIGHT_YELLOW),
+        Text("System Resources:", (TextConfig){ .fg_color = COLOR_BRIGHT_YELLOW }),
         stat_bar("CPU    ", state.cpu_usage, COLOR_GREEN),
         stat_bar("Memory ", state.memory_usage, COLOR_YELLOW),
         stat_bar("Disk   ", state.disk_usage, COLOR_RED),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
-        FgColor(Text("Recent Events:"), COLOR_BRIGHT_YELLOW),
+        Text("Recent Events:", (TextConfig){ .fg_color = COLOR_BRIGHT_YELLOW }),
         List((ListConfig){
             .items = recent_events,
             .count = 5,
             .max_visible = 10
         }),
-        Text(""),
+        Text("", TEXT_DEFAULT),
 
         HStack(
             Button("Help", toggle_help),
-            Text("  "),
+            Text("  ", TEXT_DEFAULT),
             Button("About", toggle_about),
             NULL
         ),
-        Text(""),
-        Text("Press 'q' to quit"),
+        Text("", TEXT_DEFAULT),
+        Text("Press 'q' to quit", TEXT_DEFAULT),
         NULL
     );
 
     if (state.show_help) {
         component_t* help_content = VStack(
-            Text("Dashboard Help"),
-            Text(""),
-            FgColor(Text("Navigation:"), COLOR_BRIGHT_GREEN),
-            Text("  Tab - Switch between buttons"),
-            Text("  Enter - Activate button"),
-            Text("  Esc - Close modal"),
-            Text("  q - Quit application"),
-            Text(""),
-            Text("Press any key to close..."),
+            Text("Dashboard Help", TEXT_DEFAULT),
+            Text("", TEXT_DEFAULT),
+            Text("Navigation:", (TextConfig){ .fg_color = COLOR_BRIGHT_GREEN }),
+            Text("  Tab - Switch between buttons", TEXT_DEFAULT),
+            Text("  Enter - Activate button", TEXT_DEFAULT),
+            Text("  Esc - Close modal", TEXT_DEFAULT),
+            Text("  q - Quit application", TEXT_DEFAULT),
+            Text("", TEXT_DEFAULT),
+            Text("Press any key to close...", TEXT_DEFAULT),
             NULL
         );
 
@@ -116,20 +119,25 @@ component_t* app(void) {
 
     if (state.show_about) {
         component_t* about_content = VStack(
-            Bold(FgColor(Text("inTUItive Framework"), COLOR_BRIGHT_CYAN)),
-            Text(""),
-            Text("Version: 0.2.0 (Phase 2)"),
-            Text(""),
-            FgColor(Text("Features:"), COLOR_BRIGHT_GREEN),
-            Text("  * Declarative UI"),
-            Text("  * Colors & Styling"),
-            Text("  * Interactive Components"),
-            Text("  * Modal Dialogs"),
-            Text("  * List Views"),
-            Text(""),
-            Underline(Text("github.com/yourusername/intuitive-tui")),
-            Text(""),
-            Text("Press any key to close..."),
+            Text("inTUItive Framework", (TextConfig){
+                .fg_color = COLOR_BRIGHT_CYAN,
+                .style = STYLE_BOLD
+            }),
+            Text("", TEXT_DEFAULT),
+            Text("Version: 0.2.0 (Phase 2)", TEXT_DEFAULT),
+            Text("", TEXT_DEFAULT),
+            Text("Features:", (TextConfig){ .fg_color = COLOR_BRIGHT_GREEN }),
+            Text("  * Declarative UI", TEXT_DEFAULT),
+            Text("  * Colors & Styling", TEXT_DEFAULT),
+            Text("  * Interactive Components", TEXT_DEFAULT),
+            Text("  * Modal Dialogs", TEXT_DEFAULT),
+            Text("  * List Views", TEXT_DEFAULT),
+            Text("", TEXT_DEFAULT),
+            Text("github.com/yourusername/intuitive-tui", (TextConfig){
+                .style = STYLE_UNDERLINE
+            }),
+            Text("", TEXT_DEFAULT),
+            Text("Press any key to close...", TEXT_DEFAULT),
             NULL
         );
 

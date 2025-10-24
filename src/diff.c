@@ -143,6 +143,31 @@ static unsigned int hash_component_data(struct component_t* component) {
             break;
         }
 
+        case COMPONENT_SPINNER: {
+            spinner_data_t* data = (spinner_data_t*)component->data;
+            hash = hash_int(data->style);
+            if (data->text) {
+                hash = hash_combine(hash, hash_string(data->text));
+            }
+            if (data->progress) {
+                hash = hash_combine(hash, hash_int((int)(*data->progress * 10)));
+            }
+            // Note: frame_index and timing info are animation state, not content
+            break;
+        }
+
+        case COMPONENT_TOAST: {
+            toast_data_t* data = (toast_data_t*)component->data;
+            if (data->message) {
+                hash = hash_string(data->message);
+            }
+            hash = hash_combine(hash, hash_int(data->position));
+            if (data->is_visible) {
+                hash = hash_combine(hash, hash_int(*data->is_visible ? 1 : 0));
+            }
+            break;
+        }
+
         case COMPONENT_VSTACK:
         case COMPONENT_HSTACK:
             // For stacks, hash alignment and spacing if they have data
@@ -221,6 +246,39 @@ bool component_diff_trees(struct component_t* old_tree, struct component_t* new_
         old_tree->width != new_tree->width || old_tree->height != new_tree->height) {
         new_tree->dirty = true;
         has_changes = true;
+    }
+
+    // Preserve animation state for components that need it
+    if (old_tree->type == COMPONENT_SPINNER && new_tree->type == COMPONENT_SPINNER) {
+        spinner_data_t* old_data = (spinner_data_t*)old_tree->data;
+        spinner_data_t* new_data = (spinner_data_t*)new_tree->data;
+        if (old_data && new_data) {
+            // Preserve animation frame and timing state
+            new_data->frame_index = old_data->frame_index;
+            new_data->last_update_time_us = old_data->last_update_time_us;
+        }
+    } else if (old_tree->type == COMPONENT_LIST && new_tree->type == COMPONENT_LIST) {
+        list_data_t* old_data = (list_data_t*)old_tree->data;
+        list_data_t* new_data = (list_data_t*)new_tree->data;
+        if (old_data && new_data) {
+            // Preserve scroll animation state
+            new_data->visual_scroll_offset = old_data->visual_scroll_offset;
+            new_data->target_scroll_offset = old_data->target_scroll_offset;
+            new_data->scroll_animation = old_data->scroll_animation;
+            // Prevent double-free by nulling out old animation
+            old_data->scroll_animation = NULL;
+        }
+    } else if (old_tree->type == COMPONENT_SCROLLVIEW && new_tree->type == COMPONENT_SCROLLVIEW) {
+        scrollview_data_t* old_data = (scrollview_data_t*)old_tree->data;
+        scrollview_data_t* new_data = (scrollview_data_t*)new_tree->data;
+        if (old_data && new_data) {
+            // Preserve scroll animation state
+            new_data->visual_scroll_offset = old_data->visual_scroll_offset;
+            new_data->target_scroll_offset = old_data->target_scroll_offset;
+            new_data->scroll_animation = old_data->scroll_animation;
+            // Prevent double-free by nulling out old animation
+            old_data->scroll_animation = NULL;
+        }
     }
 
     // Recursively diff children
