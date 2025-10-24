@@ -291,3 +291,24 @@ component_t* Bold(component_t* comp);
  * Example: Underline(Text("Link"))
  */
 component_t* Underline(component_t* comp);
+
+/* ========== Convenience Macros ========== */
+
+/**
+ * Common color shortcuts for frequently used combinations
+ */
+#define ErrorText(text) Bold(FgColor(Text(text), COLOR_BRIGHT_RED))
+#define SuccessText(text) Bold(FgColor(Text(text), COLOR_BRIGHT_GREEN))
+#define WarningText(text) Bold(FgColor(Text(text), COLOR_BRIGHT_YELLOW))
+#define InfoText(text) FgColor(Text(text), COLOR_BRIGHT_CYAN))
+#define MutedText(text) FgColor(Text(text), COLOR_BRIGHT_BLACK))
+
+/**
+ * Config struct initializers with common defaults
+ */
+#define INPUT(buffer, size) (InputConfig){ .buffer = buffer, .size = size }
+#define LIST(items, count) (ListConfig){ .items = items, .count = count, .max_visible = 10, .selected_index = NULL, .on_select = NULL }
+#define LIST_SELECTABLE(items, count, selected, callback) (ListConfig){ .items = items, .count = count, .max_visible = 10, .selected_index = selected, .on_select = callback }
+#define MODAL(is_open, title, content, on_close) (ModalConfig){ .is_open = is_open, .title = title, .content = content, .on_close = on_close }
+#define SCROLLVIEW(height, show_indicators) (ScrollConfig){ .max_height = height, .show_indicators = show_indicators }
+#define TABLE(headers, rows, cols, rows_count, borders) (TableConfig){ .headers = headers, .rows = rows, .column_count = cols, .row_count = rows_count, .show_borders = borders }

@@ -18,24 +18,25 @@ typedef struct {
     char* file_list[MAX_FILES];
     int file_count;
     int selected_index;
+    int scroll_offset;
     bool show_error;
     char error_msg[256];
 } fm_state_t;
 
 fm_state_t state = {0};
 
-void close_error(void) {
+static void close_error(void) {
     state.show_error = false;
     tui_request_render();
 }
 
-void show_error(const char* msg) {
+static void show_error(const char* msg) {
     strncpy(state.error_msg, msg, sizeof(state.error_msg) - 1);
     state.show_error = true;
     tui_request_render();
 }
 
-void free_file_list(void) {
+static void free_file_list(void) {
     for (int i = 0; i < state.file_count; i++) {
         free(state.file_list[i]);
         state.file_list[i] = NULL;
@@ -43,7 +44,7 @@ void free_file_list(void) {
     state.file_count = 0;
 }
 
-int compare_files(const void* a, const void* b) {
+static int compare_files(const void* a, const void* b) {
     const char* file_a = *(const char**)a;
     const char* file_b = *(const char**)b;
 
@@ -61,7 +62,7 @@ int compare_files(const void* a, const void* b) {
     return strcmp(file_a, file_b);
 }
 
-void load_directory(const char* path) {
+static void load_directory(const char* path) {
     free_file_list();
     state.selected_index = 0;
 
@@ -114,7 +115,7 @@ void load_directory(const char* path) {
     }
 }
 
-void navigate_to(const char* path) {
+static void navigate_to(const char* path) {
     char resolved[MAX_PATH];
     if (realpath(path, resolved) == NULL) {
         show_error("Invalid path");
@@ -126,13 +127,13 @@ void navigate_to(const char* path) {
     tui_request_render();
 }
 
-void navigate_up(void) {
+static void navigate_up(void) {
     char parent[MAX_PATH];
     snprintf(parent, sizeof(parent), "%s/..", state.current_path);
     navigate_to(parent);
 }
 
-void on_select_file(int index) {
+static void on_select_file(int index) {
     if (index < 0 || index >= state.file_count) {
         return;
     }
@@ -159,7 +160,7 @@ void on_select_file(int index) {
     navigate_to(new_path);
 }
 
-component_t* app(void) {
+static component_t* app(void) {
     component_t* items[MAX_FILES + 20];
     int idx = 0;
 
@@ -179,7 +180,10 @@ component_t* app(void) {
     items[idx++] = Text(count_label);
     items[idx++] = Text("");
 
-    // File list with selection support
+    // File list
+    // NOTE: Using List instead of ScrollView because List has built-in selection support.
+    // ScrollView is better for non-interactive scrolling content (like logs, text documents).
+    // List combines selection (Up/Down/Enter) + auto-scrolling in one component.
     if (state.file_count > 0) {
         items[idx++] = Text("Files and Directories:");
         items[idx++] = List((ListConfig){
