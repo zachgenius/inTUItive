@@ -53,6 +53,28 @@ void tui_set_cursor(int x, int y) {
     tui_state.cursor_y = y;
 }
 
+static struct component_t* find_open_modal(struct component_t* component) {
+    if (!component) {
+        return NULL;
+    }
+
+    if (component->type == COMPONENT_MODAL) {
+        modal_data_t* data = (modal_data_t*)component->data;
+        if (data && data->is_open && *data->is_open) {
+            return component;
+        }
+    }
+
+    for (int i = 0; i < component->child_count; i++) {
+        struct component_t* modal = find_open_modal(component->children[i]);
+        if (modal) {
+            return modal;
+        }
+    }
+
+    return NULL;
+}
+
 static bool handle_input_event(struct component_t* focused, event_t* event) {
     if (!focused || event->type != EVENT_KEY) {
         return false;
@@ -145,7 +167,19 @@ void tui_run(void) {
         event_t event;
         if (event_poll(&event)) {
             if (event.type == EVENT_KEY) {
-                if (event.data.key.code == KEY_TAB) {
+                int key = event.data.key.code;
+
+                // Check if a modal is open
+                struct component_t* open_modal = find_open_modal(tui_state.root);
+
+                // Check for Esc to close modal (works always)
+                if (key == KEY_ESC && open_modal) {
+                    modal_data_t* data = (modal_data_t*)open_modal->data;
+                    if (data && data->on_close) {
+                        data->on_close();
+                        tui_state.needs_render = true;
+                    }
+                } else if (key == KEY_TAB) {
                     focus_next();
                     tui_state.needs_render = true;
                 } else {
@@ -154,10 +188,20 @@ void tui_run(void) {
                     if (handled) {
                         tui_state.needs_render = true;
                     } else {
-                        // Key not consumed by component - check for quit
-                        int key = event.data.key.code;
-                        if (key == 'q' || key == 'Q') {
-                            tui_state.running = false;
+                        // Key not consumed by component
+
+                        // If modal is open with no focusable elements, any key closes it
+                        if (open_modal && !focused) {
+                            modal_data_t* data = (modal_data_t*)open_modal->data;
+                            if (data && data->on_close) {
+                                data->on_close();
+                                tui_state.needs_render = true;
+                            }
+                        } else if (key == 'q' || key == 'Q') {
+                            // Only allow quit if no modal is open
+                            if (!open_modal) {
+                                tui_state.running = false;
+                            }
                         }
                     }
                 }

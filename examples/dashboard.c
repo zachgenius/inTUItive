@@ -91,6 +91,7 @@ component_t* app(void) {
             FgColor(Text("Navigation:"), COLOR_BRIGHT_GREEN),
             Text("  Tab - Switch between buttons"),
             Text("  Enter - Activate button"),
+            Text("  Esc - Close modal"),
             Text("  q - Quit application"),
             Text(""),
             Text("Press any key to close..."),
@@ -118,6 +119,8 @@ component_t* app(void) {
             Text("  * List Views"),
             Text(""),
             Underline(Text("github.com/yourusername/intuitive-tui")),
+            Text(""),
+            Text("Press any key to close..."),
             NULL
         );
 
