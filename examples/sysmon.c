@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #define MAX_PROCESSES 100
 #define MAX_PROCESS_NAME 64
@@ -46,9 +47,28 @@ static app_state_t state = {
     .selected_process = 0,
     .process_scroll = 0,
     .last_update = 0,
-    .update_interval = 2,
+    .update_interval = 1,
     .status_message = "Initializing..."
 };
+
+// Mutex to protect state access between threads
+static pthread_mutex_t state_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_t update_thread;
+static bool thread_running = false;
+
+/**
+ * Initialize system info (run once at startup)
+ */
+static void init_system_info(void) {
+    // Get total memory (doesn't change, so read once)
+    FILE* fp = popen("sysctl hw.memsize | awk '{print $2}'", "r");
+    if (fp) {
+        if (fscanf(fp, "%ld", &state.mem_total) != 1) {
+            state.mem_total = 0;
+        }
+        pclose(fp);
+    }
+}
 
 /**
  * Read CPU usage from system (macOS)
@@ -70,16 +90,8 @@ static float read_cpu_usage(void) {
  * Read memory usage from system (macOS)
  */
 static void read_memory_usage(void) {
-    // Get total memory
-    FILE* fp = popen("sysctl hw.memsize | awk '{print $2}'", "r");
-    if (!fp) return;
-    if (fscanf(fp, "%ld", &state.mem_total) != 1) {
-        state.mem_total = 0;
-    }
-    pclose(fp);
-
     // Get used memory (active + wired pages)
-    fp = popen("vm_stat | grep -E 'Pages active|Pages wired' | awk '{print $3}' | tr -d '.'", "r");
+    FILE* fp = popen("vm_stat | grep -E 'Pages active|Pages wired' | awk '{print $3}' | tr -d '.'", "r");
     if (!fp) return;
 
     long active = 0, wired = 0;
@@ -140,23 +152,55 @@ static void read_processes(void) {
 }
 
 /**
- * Update system stats
+ * Background thread function to update system stats
  */
-static void update_stats(void) {
-    time_t now = time(NULL);
-    if (now - state.last_update >= state.update_interval) {
-        state.cpu_usage = read_cpu_usage();
+static void* update_thread_func(void* arg) {
+    (void)arg;
+
+    while (thread_running) {
+        // Collect stats (this is slow, but happens in background)
+        float cpu = read_cpu_usage();
+
+        // Lock mutex before updating shared state
+        pthread_mutex_lock(&state_mutex);
+
+        state.cpu_usage = cpu;
         read_memory_usage();
         read_processes();
-        state.last_update = now;
 
+        time_t now = time(NULL);
+        state.last_update = now;
         snprintf(state.status_message, sizeof(state.status_message),
                  "Updated at %s", ctime(&now));
         // Remove newline from ctime
         state.status_message[strlen(state.status_message) - 1] = '\0';
 
+        pthread_mutex_unlock(&state_mutex);
+
+        // Request UI re-render
         tui_request_render();
+
+        // Sleep for update interval
+        sleep(state.update_interval);
     }
+
+    return NULL;
+}
+
+/**
+ * Start background update thread
+ */
+static void start_update_thread(void) {
+    thread_running = true;
+    pthread_create(&update_thread, NULL, update_thread_func, NULL);
+}
+
+/**
+ * Stop background update thread
+ */
+static void stop_update_thread(void) {
+    thread_running = false;
+    pthread_join(update_thread, NULL);
 }
 
 /**
@@ -210,32 +254,51 @@ static void on_process_select(int index) {
 }
 
 static component_t* app(void) {
-    update_stats();
-
     int term_width, term_height;
     tui_get_terminal_size(&term_width, &term_height);
 
-    // Format stats
+    // Copy state with mutex lock (minimize lock time)
+    pthread_mutex_lock(&state_mutex);
+
+    float cpu_usage = state.cpu_usage;
+    float mem_usage = state.mem_usage;
+    long mem_total = state.mem_total;
+    long mem_used = state.mem_used;
+    int process_count_total = state.process_count_total;
+    int process_count = state.process_count;
+    char status_message[128];
+    strncpy(status_message, state.status_message, sizeof(status_message) - 1);
+    status_message[sizeof(status_message) - 1] = '\0';
+
+    // Copy process list
+    process_info_t processes[MAX_PROCESSES];
+    for (int i = 0; i < state.process_count; i++) {
+        processes[i] = state.processes[i];
+    }
+
+    pthread_mutex_unlock(&state_mutex);
+
+    // Format stats (outside mutex)
     char cpu_str[64];
     char mem_str[64];
     char mem_total_str[32];
     char mem_used_str[32];
     char process_count_str[64];
 
-    snprintf(cpu_str, sizeof(cpu_str), "%.1f%%", state.cpu_usage);
-    format_bytes(state.mem_total, mem_total_str, sizeof(mem_total_str));
-    format_bytes(state.mem_used, mem_used_str, sizeof(mem_used_str));
-    snprintf(mem_str, sizeof(mem_str), "%.1f%%", state.mem_usage);
+    snprintf(cpu_str, sizeof(cpu_str), "%.1f%%", cpu_usage);
+    format_bytes(mem_total, mem_total_str, sizeof(mem_total_str));
+    format_bytes(mem_used, mem_used_str, sizeof(mem_used_str));
+    snprintf(mem_str, sizeof(mem_str), "%.1f%%", mem_usage);
     snprintf(process_count_str, sizeof(process_count_str),
              "Total Processes: %d (showing top %d by CPU)",
-             state.process_count_total, state.process_count);
+             process_count_total, process_count);
 
     // Create process list items
     const char* process_items[MAX_PROCESSES];
     static char process_lines[MAX_PROCESSES][128];
 
-    for (int i = 0; i < state.process_count; i++) {
-        process_info_t* proc = &state.processes[i];
+    for (int i = 0; i < process_count; i++) {
+        process_info_t* proc = &processes[i];
         snprintf(process_lines[i], sizeof(process_lines[i]),
                  "%-6d  %5.1f%%  %5.1f%%  %-12s  %s",
                  proc->pid, proc->cpu, proc->mem, proc->user, proc->name);
@@ -267,7 +330,7 @@ static component_t* app(void) {
                     Text(cpu_str),
                     NULL
                 ),
-                progress_bar(state.cpu_usage, 40),
+                progress_bar(cpu_usage, 40),
                 Text(""),
 
                 // Memory stats
@@ -282,7 +345,7 @@ static component_t* app(void) {
                     Text(")"),
                     NULL
                 ),
-                progress_bar(state.mem_usage, 40),
+                progress_bar(mem_usage, 40),
                 NULL
             ),
             (PaddingConfig){ .top = 1, .bottom = 1, .left = 2, .right = 2 }
@@ -300,7 +363,7 @@ static component_t* app(void) {
         // Scrollable process list (List has built-in scrolling)
         List((ListConfig){
             .items = process_items,
-            .count = state.process_count,
+            .count = process_count,
             .max_visible = list_height,
             .scroll_offset = &state.process_scroll,
             .selected_index = &state.selected_process,
@@ -309,23 +372,33 @@ static component_t* app(void) {
 
         Text(""),
         HStack(
-            FgColor(Text("Updates every 2s"), COLOR_BRIGHT_BLACK),
+            FgColor(Text("Auto-updates every 1s"), COLOR_BRIGHT_BLACK),
             Text(" • "),
-            FgColor(Text("Tab to focus list, then use ↑↓ or mouse wheel"), COLOR_BRIGHT_BLACK),
+            FgColor(Text("Tab to focus, ↑↓ or wheel to scroll"), COLOR_BRIGHT_BLACK),
             Text(" • "),
             FgColor(Text("Click to select"), COLOR_BRIGHT_BLACK),
             Text(" • "),
-            FgColor(Text("'q' to quit"), COLOR_BRIGHT_BLACK),
+            FgColor(Text("'q' quits"), COLOR_BRIGHT_BLACK),
             NULL
         ),
-        FgColor(Text(state.status_message), COLOR_BRIGHT_BLACK),
+        FgColor(Text(status_message), COLOR_BRIGHT_BLACK),
         NULL
     );
 }
 
 int main(void) {
+    // Initialize system info
+    init_system_info();
+
+    // Start background update thread
+    start_update_thread();
+
     tui_init();
     tui_set_root(app);
     tui_run();
+
+    // Stop background thread on exit
+    stop_update_thread();
+
     return 0;
 }

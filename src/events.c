@@ -3,11 +3,29 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/select.h>
 
 bool event_poll(event_t* event) {
     char buf[32];  // Increased for longer mouse sequences
 
-	// check the number of bytes read from the keyboard
+    // Use select() with timeout to allow periodic wakeups
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(STDIN_FILENO, &readfds);
+
+    struct timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 100000;  // 100ms timeout
+
+    int ready = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &timeout);
+
+    if (ready <= 0) {
+        // Timeout or error - no event available
+        event->type = EVENT_NONE;
+        return false;
+    }
+
+    // Data available, read it
     ssize_t n = read(STDIN_FILENO, buf, sizeof(buf) - 1);
 
     if (n <= 0) {
