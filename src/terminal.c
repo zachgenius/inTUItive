@@ -130,10 +130,14 @@ void term_set_color(color_t fg, color_t bg) {
     bool need_semicolon = false;
 
     if (fg != COLOR_DEFAULT) {
-        if (fg <= 7) {
-            offset += snprintf(buf + offset, sizeof(buf) - offset, "3%d", fg);
+        // COLOR_DEFAULT = 0, COLOR_BLACK = 1, ..., COLOR_WHITE = 8
+        // COLOR_BRIGHT_BLACK = 9, ..., COLOR_BRIGHT_WHITE = 16
+        // Map to ANSI: 0-7 (normal), 8-15 (bright)
+        int ansi_fg = fg - 1;  // Subtract 1 to get ANSI color value
+        if (ansi_fg <= 7) {
+            offset += snprintf(buf + offset, sizeof(buf) - offset, "3%d", ansi_fg);
         } else {
-            offset += snprintf(buf + offset, sizeof(buf) - offset, "9%d", fg - 8);
+            offset += snprintf(buf + offset, sizeof(buf) - offset, "9%d", ansi_fg - 8);
         }
         need_semicolon = true;
     }
@@ -142,10 +146,12 @@ void term_set_color(color_t fg, color_t bg) {
         if (need_semicolon) {
             buf[offset++] = ';';
         }
-        if (bg <= 7) {
-            offset += snprintf(buf + offset, sizeof(buf) - offset, "4%d", bg);
+        // Same mapping for background colors
+        int ansi_bg = bg - 1;  // Subtract 1 to get ANSI color value
+        if (ansi_bg <= 7) {
+            offset += snprintf(buf + offset, sizeof(buf) - offset, "4%d", ansi_bg);
         } else {
-            offset += snprintf(buf + offset, sizeof(buf) - offset, "10%d", bg - 8);
+            offset += snprintf(buf + offset, sizeof(buf) - offset, "10%d", ansi_bg - 8);
         }
     }
 

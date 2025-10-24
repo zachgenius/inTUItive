@@ -35,25 +35,26 @@ typedef struct component_t component_t;
 
 /**
  * Terminal colors (ANSI 16-color palette)
+ * COLOR_DEFAULT = 0 for easy zero-initialization
  */
 typedef enum {
-    COLOR_DEFAULT = -1,
-    COLOR_BLACK = 0,
-    COLOR_RED = 1,
-    COLOR_GREEN = 2,
-    COLOR_YELLOW = 3,
-    COLOR_BLUE = 4,
-    COLOR_MAGENTA = 5,
-    COLOR_CYAN = 6,
-    COLOR_WHITE = 7,
-    COLOR_BRIGHT_BLACK = 8,
-    COLOR_BRIGHT_RED = 9,
-    COLOR_BRIGHT_GREEN = 10,
-    COLOR_BRIGHT_YELLOW = 11,
-    COLOR_BRIGHT_BLUE = 12,
-    COLOR_BRIGHT_MAGENTA = 13,
-    COLOR_BRIGHT_CYAN = 14,
-    COLOR_BRIGHT_WHITE = 15,
+    COLOR_DEFAULT = 0,
+    COLOR_BLACK = 1,
+    COLOR_RED = 2,
+    COLOR_GREEN = 3,
+    COLOR_YELLOW = 4,
+    COLOR_BLUE = 5,
+    COLOR_MAGENTA = 6,
+    COLOR_CYAN = 7,
+    COLOR_WHITE = 8,
+    COLOR_BRIGHT_BLACK = 9,
+    COLOR_BRIGHT_RED = 10,
+    COLOR_BRIGHT_GREEN = 11,
+    COLOR_BRIGHT_YELLOW = 12,
+    COLOR_BRIGHT_BLUE = 13,
+    COLOR_BRIGHT_MAGENTA = 14,
+    COLOR_BRIGHT_CYAN = 15,
+    COLOR_BRIGHT_WHITE = 16,
 } color_t;
 
 /**
@@ -133,7 +134,7 @@ typedef struct {
  * Default text configuration (no styling)
  * Use this for plain text without any colors or styles
  */
-#define TEXT_DEFAULT ((TextConfig){})
+#define TEXT_DEFAULT ((TextConfig){ .fg_color = COLOR_DEFAULT, .bg_color = COLOR_DEFAULT, .style = STYLE_NONE })
 
 /**
  * Create a Text component
