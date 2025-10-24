@@ -75,12 +75,21 @@ else()
     target_link_libraries(table_demo intuitive)
 endif()
 
+# Mouse demo example
+add_executable(mouse_demo mouse_demo.c)
+
+if(USE_STATIC_LIB)
+    target_link_libraries(mouse_demo intuitive_static)
+else()
+    target_link_libraries(mouse_demo intuitive)
+endif()
+
 # Set output directory for examples
-set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo PROPERTIES
+set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo mouse_demo PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples
 )
 
 # Installation rules for examples
-install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo
+install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo mouse_demo
     RUNTIME DESTINATION bin/examples
 )

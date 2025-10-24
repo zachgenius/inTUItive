@@ -1,9 +1,11 @@
 #include "internal/events.h"
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 bool event_poll(event_t* event) {
-    char buf[8];
+    char buf[32];  // Increased for longer mouse sequences
 
 	// check the number of bytes read from the keyboard
     ssize_t n = read(STDIN_FILENO, buf, sizeof(buf) - 1);
@@ -21,8 +23,34 @@ bool event_poll(event_t* event) {
         return true;
     }
 
-    // Multi-byte sequences (arrow keys, etc.)
+    // Multi-byte sequences (arrow keys, mouse, etc.)
     if (buf[0] == '\033' && buf[1] == '[') {
+        // SGR Mouse event: \033[<button;x;y(M|m)
+        if (buf[2] == '<') {
+            int button, x, y;
+            char action;
+
+            // Parse: <button;x;yM or <button;x;ym
+            if (sscanf(buf + 3, "%d;%d;%d%c", &button, &x, &y, &action) == 4) {
+                event->type = EVENT_MOUSE;
+                event->data.mouse.button = (mouse_button_t)button;
+                event->data.mouse.x = x - 1;  // Convert to 0-based
+                event->data.mouse.y = y - 1;  // Convert to 0-based
+
+                // M = press, m = release
+                if (action == 'M') {
+                    event->data.mouse.action = MOUSE_PRESS;
+                } else if (action == 'm') {
+                    event->data.mouse.action = MOUSE_RELEASE;
+                } else {
+                    event->data.mouse.action = MOUSE_DRAG;
+                }
+
+                return true;
+            }
+        }
+
+        // Regular escape sequences (arrow keys, etc.)
         switch (buf[2]) {
             case 'A':
                 event->type = EVENT_KEY;

@@ -201,6 +201,122 @@ static bool handle_input_event(struct component_t* focused, event_t* event) {
     return false;
 }
 
+/**
+ * Find component at given coordinates (recursive)
+ */
+static struct component_t* find_component_at(struct component_t* component, int x, int y) {
+    if (!component) {
+        return NULL;
+    }
+
+    // Check children first (depth-first, so top-most components checked first)
+    for (int i = component->child_count - 1; i >= 0; i--) {
+        struct component_t* found = find_component_at(component->children[i], x, y);
+        if (found) {
+            return found;
+        }
+    }
+
+    // Check if this component contains the point
+    if (x >= component->x && x < component->x + component->width &&
+        y >= component->y && y < component->y + component->height) {
+        return component;
+    }
+
+    return NULL;
+}
+
+/**
+ * Handle mouse click on a component
+ */
+static bool handle_mouse_click(struct component_t* component, int x, int y) {
+    if (!component) {
+        return false;
+    }
+
+    switch (component->type) {
+        case COMPONENT_BUTTON: {
+            button_data_t* data = (button_data_t*)component->data;
+            if (data && data->on_click) {
+                data->on_click();
+                return true;
+            }
+            break;
+        }
+
+        case COMPONENT_LIST: {
+            list_data_t* data = (list_data_t*)component->data;
+            if (data && data->selected_index) {
+                // Calculate which item was clicked
+                int relative_y = y - component->y;
+                int scroll_offset = data->scroll_offset ? *data->scroll_offset : 0;
+                int clicked_index = scroll_offset + relative_y;
+
+                if (clicked_index >= 0 && clicked_index < data->item_count) {
+                    *data->selected_index = clicked_index;
+
+                    // Call on_select if present
+                    if (data->on_select) {
+                        data->on_select(clicked_index);
+                    }
+
+                    return true;
+                }
+            }
+            break;
+        }
+
+        default:
+            break;
+    }
+
+    return false;
+}
+
+/**
+ * Handle mouse scroll on a component
+ */
+static bool handle_mouse_scroll(struct component_t* component, int delta) {
+    if (!component) {
+        return false;
+    }
+
+    // Find scrollable component (List or ScrollView)
+    if (component->type == COMPONENT_LIST) {
+        list_data_t* data = (list_data_t*)component->data;
+        if (data && data->scroll_offset) {
+            int new_offset = *data->scroll_offset - delta;  // Negative delta = scroll down
+            if (new_offset < 0) new_offset = 0;
+
+            int max_offset = data->item_count - data->max_visible_items;
+            if (max_offset < 0) max_offset = 0;
+            if (new_offset > max_offset) new_offset = max_offset;
+
+            if (new_offset != *data->scroll_offset) {
+                *data->scroll_offset = new_offset;
+                return true;
+            }
+        }
+    } else if (component->type == COMPONENT_SCROLLVIEW) {
+        scrollview_data_t* data = (scrollview_data_t*)component->data;
+        if (data && data->scroll_offset && data->content) {
+            int new_offset = *data->scroll_offset - delta;  // Negative delta = scroll down
+            if (new_offset < 0) new_offset = 0;
+
+            int max_offset = data->content->height - data->max_visible_height;
+            if (max_offset < 0) max_offset = 0;
+            if (new_offset > max_offset) new_offset = max_offset;
+
+            if (new_offset != *data->scroll_offset) {
+                *data->scroll_offset = new_offset;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void tui_run(void) {
     if (!tui_state.root_fn) {
         return;
@@ -275,6 +391,33 @@ void tui_run(void) {
                             if (!open_modal) {
                                 tui_state.running = false;
                             }
+                        }
+                    }
+                }
+            } else if (event.type == EVENT_MOUSE) {
+                // Handle mouse events
+                int mouse_x = event.data.mouse.x;
+                int mouse_y = event.data.mouse.y;
+                mouse_button_t button = event.data.mouse.button;
+                mouse_action_t action = event.data.mouse.action;
+
+                // Only handle left click press for now
+                if (button == MOUSE_LEFT && action == MOUSE_PRESS) {
+                    struct component_t* clicked = find_component_at(tui_state.root, mouse_x, mouse_y);
+                    if (clicked) {
+                        bool handled = handle_mouse_click(clicked, mouse_x, mouse_y);
+                        if (handled) {
+                            tui_state.needs_render = true;
+                        }
+                    }
+                }
+                // Handle scroll wheel
+                else if ((button == MOUSE_SCROLL_UP || button == MOUSE_SCROLL_DOWN) && action == MOUSE_PRESS) {
+                    struct component_t* scrolled = find_component_at(tui_state.root, mouse_x, mouse_y);
+                    if (scrolled) {
+                        bool handled = handle_mouse_scroll(scrolled, button == MOUSE_SCROLL_UP ? -1 : 1);
+                        if (handled) {
+                            tui_state.needs_render = true;
                         }
                     }
                 }
