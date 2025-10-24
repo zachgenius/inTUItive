@@ -57,12 +57,21 @@ else()
     target_link_libraries(scrollview_demo intuitive)
 endif()
 
+# File Manager example (Phase 3 milestone)
+add_executable(file_manager file_manager.c)
+
+if(USE_STATIC_LIB)
+    target_link_libraries(file_manager intuitive_static)
+else()
+    target_link_libraries(file_manager intuitive)
+endif()
+
 # Set output directory for examples
-set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo PROPERTIES
+set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples
 )
 
 # Installation rules for examples
-install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo
+install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager
     RUNTIME DESTINATION bin/examples
 )
