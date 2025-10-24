@@ -21,7 +21,6 @@ typedef struct {
     component_t* root;
     component_t* prev_root;  // Previous tree for diffing
     bool running;
-    bool needs_render;
     int term_width;
     int term_height;
     bool show_cursor;
@@ -46,7 +45,8 @@ void tui_set_root(component_t* (*root_fn)(void)) {
 }
 
 void tui_request_render(void) {
-    tui_state.needs_render = true;
+    // No-op: The event loop now continuously renders to support animations
+    // The diff system prevents unnecessary screen updates
 }
 
 bool tui_get_terminal_size(int* width, int* height) {
@@ -325,47 +325,42 @@ void tui_run(void) {
     }
 
     tui_state.running = true;
-    tui_state.needs_render = true;
 
     while (tui_state.running) {
-        if (tui_state.needs_render) {
-            // Build new tree
-            component_t* new_root = tui_state.root_fn();
-            if (!new_root) {
-                break;
-            }
-
-            // Measure and layout new tree
-            layout_measure(new_root);
-            layout_position(new_root, 0, 0);
-
-            // Diff with previous tree
-            bool has_changes = component_diff_trees(tui_state.prev_root, new_root);
-
-            // Only render if there are actual changes
-            if (has_changes || !tui_state.prev_root) {
-                focus_build_list(new_root);
-                term_clear();
-                term_hide_cursor();
-
-                tui_state.show_cursor = false;
-                render_component(new_root);
-
-                if (tui_state.show_cursor) {
-                    term_move_cursor(tui_state.cursor_x, tui_state.cursor_y);
-                    term_show_cursor();
-                }
-            }
-
-            // Free the oldest tree (prev_root from 2 frames ago)
-            if (tui_state.prev_root) {
-                component_free(tui_state.prev_root);
-            }
-
-            tui_state.prev_root = tui_state.root;
-            tui_state.root = new_root;
-            tui_state.needs_render = false;
+        component_t* new_root = tui_state.root_fn();
+        if (!new_root) {
+            break;
         }
+
+        // Measure and layout new tree
+        layout_measure(new_root);
+        layout_position(new_root, 0, 0);
+
+        // Diff with previous tree
+        bool has_changes = component_diff_trees(tui_state.prev_root, new_root);
+
+        // Only render if there are actual changes
+        if (has_changes || !tui_state.prev_root) {
+            focus_build_list(new_root);
+            term_clear();
+            term_hide_cursor();
+
+            tui_state.show_cursor = false;
+            render_component(new_root);
+
+            if (tui_state.show_cursor) {
+                term_move_cursor(tui_state.cursor_x, tui_state.cursor_y);
+                term_show_cursor();
+            }
+        }
+
+        // Free the oldest tree (prev_root from 2 frames ago)
+        if (tui_state.prev_root) {
+            component_free(tui_state.prev_root);
+        }
+
+        tui_state.prev_root = tui_state.root;
+        tui_state.root = new_root;
 
         event_t event;
         if (event_poll(&event)) {
@@ -380,17 +375,13 @@ void tui_run(void) {
                     modal_data_t* data = (modal_data_t*)open_modal->data;
                     if (data && data->on_close) {
                         data->on_close();
-                        tui_state.needs_render = true;
                     }
                 } else if (key == KEY_TAB) {
                     focus_next();
-                    tui_state.needs_render = true;
                 } else {
                     struct component_t* focused = focus_get_current();
                     bool handled = handle_input_event(focused, &event);
-                    if (handled) {
-                        tui_state.needs_render = true;
-                    } else {
+                    if (!handled) {
                         // Key not consumed by component
 
                         // If modal is open with no focusable elements, any key closes it
@@ -398,7 +389,6 @@ void tui_run(void) {
                             modal_data_t* data = (modal_data_t*)open_modal->data;
                             if (data && data->on_close) {
                                 data->on_close();
-                                tui_state.needs_render = true;
                             }
                         } else if (key == 'q' || key == 'Q') {
                             // Only allow quit if no modal is open
@@ -421,22 +411,15 @@ void tui_run(void) {
                 // Focus follows mouse - if the component is focusable, focus it
                 if (target && target->focusable && !target->focused) {
                     focus_set(target);
-                    tui_state.needs_render = true;
                 }
 
                 // Handle left click
                 if (button == MOUSE_LEFT && action == MOUSE_PRESS && target) {
-                    bool handled = handle_mouse_click(target, mouse_x, mouse_y);
-                    if (handled) {
-                        tui_state.needs_render = true;
-                    }
+                    handle_mouse_click(target, mouse_x, mouse_y);
                 }
                 // Handle scroll wheel
                 else if ((button == MOUSE_SCROLL_UP || button == MOUSE_SCROLL_DOWN) && action == MOUSE_PRESS && target) {
-                    bool handled = handle_mouse_scroll(target, button == MOUSE_SCROLL_UP ? -1 : 1);
-                    if (handled) {
-                        tui_state.needs_render = true;
-                    }
+                    handle_mouse_scroll(target, button == MOUSE_SCROLL_UP ? -1 : 1);
                 }
             }
         }
