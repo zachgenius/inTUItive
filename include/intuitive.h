@@ -3,6 +3,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * inTUItive - A declarative TUI framework for C
  *
@@ -471,3 +475,7 @@ component_t* Toast(ToastConfig config);
 #define MODAL(is_open, title, content, on_close) (ModalConfig){ .is_open = is_open, .title = title, .content = content, .on_close = on_close }
 #define SCROLLVIEW(height, show_indicators) (ScrollConfig){ .max_height = height, .show_indicators = show_indicators, .thumb_focused = NULL, .thumb_unfocused = NULL, .track_char = NULL, .show_arrows = true }
 #define TABLE(headers, rows, cols, rows_count, borders) (TableConfig){ .headers = headers, .rows = rows, .column_count = cols, .row_count = rows_count, .show_borders = borders }
+
+#ifdef __cplusplus
+}
+#endif
