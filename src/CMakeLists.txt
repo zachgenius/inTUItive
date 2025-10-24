@@ -18,6 +18,9 @@ set(INTUITIVE_TUI_SOURCES
     components/modal.c
     components/scrollview.c
     components/table.c
+    components/aligned_stack.c
+    components/padding.c
+    components/spacer.c
 )
 
 # Create both shared and static libraries

@@ -17,6 +17,8 @@ typedef enum {
     COMPONENT_MODAL,
     COMPONENT_SCROLLVIEW,
     COMPONENT_TABLE,
+    COMPONENT_PADDING,
+    COMPONENT_SPACER,
 } component_type_t;
 
 /**
@@ -116,6 +118,22 @@ typedef struct {
     int* column_widths;     // Width of each column (auto-calculated)
     bool show_borders;      // Whether to show borders
 } table_data_t;
+
+/**
+ * Stack component data (for aligned stacks)
+ */
+typedef struct {
+    alignment_t alignment;
+    int spacing;
+} stack_data_t;
+
+/**
+ * Padding component data
+ */
+typedef struct {
+    struct component_t* child;
+    PaddingConfig padding;
+} padding_data_t;
 
 /**
  * Create a new component of the given type

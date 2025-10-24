@@ -121,8 +121,23 @@ void component_free(struct component_t* component) {
                 free(table_data);
                 break;
             }
+            case COMPONENT_PADDING: {
+                padding_data_t* padding_data = (padding_data_t*)component->data;
+                if (padding_data->child) {
+                    component_free(padding_data->child);
+                }
+                free(padding_data);
+                break;
+            }
+            case COMPONENT_SPACER:
+                // Spacer has no data
+                break;
             case COMPONENT_VSTACK:
             case COMPONENT_HSTACK:
+                // Check if there's stack_data (for aligned stacks)
+                if (component->data) {
+                    free(component->data);
+                }
                 break;
         }
     }

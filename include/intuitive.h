@@ -65,6 +65,25 @@ typedef enum {
     STYLE_UNDERLINE = 1 << 1,
 } style_t;
 
+/**
+ * Alignment options for layout containers
+ */
+typedef enum {
+    ALIGN_START = 0,    // Left for HStack, Top for VStack
+    ALIGN_CENTER = 1,   // Center alignment
+    ALIGN_END = 2,      // Right for HStack, Bottom for VStack
+} alignment_t;
+
+/**
+ * Padding configuration
+ */
+typedef struct {
+    int top;
+    int bottom;
+    int left;
+    int right;
+} PaddingConfig;
+
 /* ========== TUI Core API ========== */
 
 /**
@@ -131,6 +150,55 @@ component_t* HStack(component_t* first, ...);
  * Example: VStackArray(items) where items is component_t*[]
  */
 component_t* VStackArray(component_t** children);
+
+/**
+ * StackConfig for advanced stack layout control
+ */
+typedef struct {
+    component_t** children;  // NULL-terminated array of children
+    alignment_t alignment;   // Horizontal alignment for VStack, vertical for HStack
+    int spacing;             // Space between children (default: 0)
+} StackConfig;
+
+/**
+ * Create a VStack with alignment and spacing options
+ *
+ * Example: AlignedVStack((StackConfig){
+ *     .children = (component_t*[]){ Text("A"), Text("B"), NULL },
+ *     .alignment = ALIGN_CENTER,
+ *     .spacing = 1
+ * })
+ */
+component_t* AlignedVStack(StackConfig config);
+
+/**
+ * Create an HStack with alignment and spacing options
+ *
+ * Example: AlignedHStack((StackConfig){
+ *     .children = (component_t*[]){ Text("A"), Text("B"), NULL },
+ *     .alignment = ALIGN_CENTER,
+ *     .spacing = 1
+ * })
+ */
+component_t* AlignedHStack(StackConfig config);
+
+/**
+ * Add padding around a component
+ * Padding adds space inside the component's bounds
+ *
+ * Example: Padded(Text("Hello"), (PaddingConfig){ .all = 2 })
+ * Example: Padded(Text("Hello"), (PaddingConfig){ .top = 1, .left = 2, .right = 2, .bottom = 1 })
+ */
+component_t* Padded(component_t* child, PaddingConfig padding);
+
+/**
+ * Create a flexible spacer component
+ * In HStack: pushes siblings to left/right edges
+ * In VStack: pushes siblings to top/bottom edges
+ *
+ * Example: HStack(Text("Left"), Spacer(), Text("Right"), NULL)
+ */
+component_t* Spacer(void);
 
 /**
  * Create a Button component
