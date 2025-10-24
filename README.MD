@@ -76,9 +76,10 @@ Button("OK", callback)              // Clickable button
 
 // Config-based components (inspired by SwiftUI)
 Input((InputConfig){ .buffer = buf, .size = 256 })
-List((ListConfig){ .items = items, .count = 5, .max_visible = 10 })
+List((ListConfig){ .items = items, .count = 5, .max_visible = 10, .scroll_offset = &scroll, .selected_index = &idx, .on_select = callback })
 Modal((ModalConfig){ .is_open = &open, .title = "Alert", .content = Text("Hi!"), .on_close = close })
 ScrollView(content, &scroll, (ScrollConfig){ .max_height = 10, .show_indicators = true })
+Table((TableConfig){ .headers = headers, .rows = rows, .column_count = 3, .row_count = 5, .show_borders = true })
 
 // Style modifiers (chainable!)
 Bold(FgColor(Text("Error!"), COLOR_RED))
@@ -120,6 +121,16 @@ component_t* counter_app(void) {
 }
 ```
 
+### Dynamic Sizing (NEW!)
+```c
+// Get terminal dimensions for responsive layouts
+int width, height;
+if (tui_get_terminal_size(&width, &height)) {
+    int max_visible = height - 10;  // Reserve space for UI
+    // Use max_visible for List or ScrollView
+}
+```
+
 ## Roadmap
 
 ### ✅ Phase 0: Foundation (COMPLETE!)
@@ -142,11 +153,13 @@ component_t* counter_app(void) {
 - ✅ Config struct API (SwiftUI/Compose style)
 - ✅ **Milestone**: Dashboard app
 
-### 🚧 Phase 3: Advanced Features (IN PROGRESS)
+### ✅ Phase 3: Advanced Features (COMPLETE!)
 - ✅ ScrollView with viewport clipping
 - ✅ Scroll indicators (▲/▼)
-- 🚧 Table/Grid component
-- 🚧 **Milestone**: File Manager app
+- ✅ Table component with bordered/borderless modes
+- ✅ List auto-scrolling with selection
+- ✅ Dynamic terminal sizing API
+- ✅ **Milestone**: File Manager app
 
 ### 📋 Phase 4: Future Ideas
 - Animations and transitions
@@ -164,6 +177,8 @@ Check out the [`examples/`](examples/) directory (all working!):
 - **styling_demo**: Colors and text styles showcase
 - **dashboard**: Modal dialogs and styled components
 - **scrollview_demo**: ScrollView with vertical scrolling
+- **table_demo**: Table component with bordered/borderless modes
+- **file_manager**: Interactive file browser with auto-scrolling (Phase 3 milestone!)
 
 ## Contributing
 
@@ -178,29 +193,29 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Current Status
 
-**Phase 3 - Advanced Features**
+**Phase 3 - COMPLETE! 🎉**
 
-Recently completed:
-- [X] ScrollView component with vertical scrolling
-- [X] Viewport clipping for clean rendering
-- [X] Scroll indicators (▲/▼)
-- [X] Config struct API refactor (SwiftUI/Compose-style)
-- [X] All Phase 0, 1, 2 milestones (Hello World, TODO app, Dashboard)
+All major features are implemented and working:
+- ✅ ScrollView with viewport clipping and scroll indicators (▲/▼)
+- ✅ Table component with bordered/borderless display modes
+- ✅ List component with auto-scrolling selection
+- ✅ Dynamic terminal sizing API (`tui_get_terminal_size`)
+- ✅ External state pattern for scroll/selection persistence
+- ✅ File Manager app (Phase 3 milestone) - fully functional file browser!
 
-Currently working on:
-- [ ] Table/Grid component for structured data
-- [ ] File Manager example app (Phase 3 milestone)
-
-What's already working:
+What's working now:
 - ✅ Declarative UI with VStack/HStack
-- ✅ Text, Button, Input components
-- ✅ List and ScrollView
-- ✅ Modal dialogs
+- ✅ Interactive components: Text, Button, Input, List
+- ✅ Scrollable content: ScrollView with indicators
+- ✅ Data display: Table with auto-calculated column widths
+- ✅ Modal dialogs with customizable content
 - ✅ Colors and styling (Bold, Underline, 16-color ANSI)
-- ✅ Event system and focus management
-- ✅ State management with re-rendering
+- ✅ Event system with keyboard navigation
+- ✅ Focus management with Tab key
+- ✅ State management with automatic re-rendering
+- ✅ Dynamic terminal sizing and responsive layouts
 
-The framework is actually usable now! Build something cool with it and let me know! 🚀
+The framework is production-ready for terminal apps! Build something awesome with it! 🚀
 
 
 ## License
