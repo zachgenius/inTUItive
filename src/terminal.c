@@ -57,6 +57,9 @@ bool term_init(void) {
     // Hide cursor
     term_hide_cursor();
 
+    // Enable mouse tracking
+    term_enable_mouse();
+
     // Clear screen
     term_clear();
 
@@ -64,6 +67,9 @@ bool term_init(void) {
 }
 
 void term_cleanup(void) {
+    // Disable mouse tracking
+    term_disable_mouse();
+
     // Show cursor
     term_show_cursor();
 
@@ -165,4 +171,18 @@ void term_set_style(style_t style) {
 
 void term_reset_style(void) {
     term_write("\033[0m");
+}
+
+void term_enable_mouse(void) {
+    // Enable mouse button tracking (SGR extended mode for better coordinates)
+    term_write("\033[?1000h");  // Enable mouse button events
+    term_write("\033[?1006h");  // Enable SGR extended coordinates
+    term_write("\033[?1003h");  // Enable mouse motion events
+}
+
+void term_disable_mouse(void) {
+    // Disable all mouse tracking
+    term_write("\033[?1003l");  // Disable mouse motion events
+    term_write("\033[?1006l");  // Disable SGR extended coordinates
+    term_write("\033[?1000l");  // Disable mouse button events
 }

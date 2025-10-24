@@ -73,3 +73,14 @@ void term_set_style(style_t style);
  * Reset all colors and styles to default
  */
 void term_reset_style(void);
+
+/**
+ * Enable mouse tracking
+ * Terminal will report mouse events
+ */
+void term_enable_mouse(void);
+
+/**
+ * Disable mouse tracking
+ */
+void term_disable_mouse(void);
