@@ -163,6 +163,27 @@ component_t* List(const char** items, int count);
  */
 component_t* Modal(bool* is_open, const char* title, component_t* content, void (*on_close)(void));
 
+/**
+ * Create a ScrollView component
+ * Scrollable container that constrains content to max_height
+ * Content taller than max_height can be scrolled with arrow keys
+ * scroll_offset pointer stores the scroll position (persists across frames)
+ *
+ * Example:
+ *   int scroll = 0;
+ *   ScrollView(VStack(...long content..., NULL), &scroll, 10)
+ */
+component_t* ScrollView(component_t* content, int* scroll_offset, int max_height);
+
+/**
+ * Enable or disable scroll indicators for a ScrollView
+ * Shows ▲/▼ arrows to indicate scrollable content
+ * Returns the same component for chaining
+ *
+ * Example: ScrollIndicators(ScrollView(...), false)
+ */
+component_t* ScrollIndicators(component_t* comp, bool enabled);
+
 /* ========== Style Modifiers ========== */
 
 /**

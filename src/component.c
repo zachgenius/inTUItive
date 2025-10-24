@@ -92,6 +92,12 @@ void component_free(struct component_t* component) {
                 free(modal_data);
                 break;
             }
+            case COMPONENT_SCROLLVIEW: {
+                scrollview_data_t* scrollview_data = (scrollview_data_t*)component->data;
+                component_free(scrollview_data->content);
+                free(scrollview_data);
+                break;
+            }
             case COMPONENT_VSTACK:
             case COMPONENT_HSTACK:
                 break;

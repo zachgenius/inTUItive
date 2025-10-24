@@ -15,6 +15,7 @@ typedef enum {
     COMPONENT_INPUT,
     COMPONENT_LIST,
     COMPONENT_MODAL,
+    COMPONENT_SCROLLVIEW,
 } component_type_t;
 
 /**
@@ -90,6 +91,16 @@ typedef struct {
     struct component_t* content;
     void (*on_close)(void);
 } modal_data_t;
+
+/**
+ * ScrollView component data
+ */
+typedef struct {
+    struct component_t* content;
+    int* scroll_offset;  // Pointer to external state
+    int max_visible_height;
+    bool show_indicators;  // Whether to show scroll indicators (▲/▼)
+} scrollview_data_t;
 
 /**
  * Create a new component of the given type

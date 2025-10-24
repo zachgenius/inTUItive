@@ -3,6 +3,31 @@
 #include "internal/terminal.h"
 #include "internal/tui.h"
 #include <string.h>
+#include <stdbool.h>
+
+// Clipping rectangle state
+static bool clip_enabled = false;
+static int clip_x, clip_y, clip_width, clip_height;
+
+void render_set_clip(int x, int y, int width, int height) {
+    clip_enabled = true;
+    clip_x = x;
+    clip_y = y;
+    clip_width = width;
+    clip_height = height;
+}
+
+void render_clear_clip(void) {
+    clip_enabled = false;
+}
+
+bool render_is_clipped(int x, int y) {
+    if (!clip_enabled) {
+        return false;
+    }
+    return (x < clip_x || x >= clip_x + clip_width ||
+            y < clip_y || y >= clip_y + clip_height);
+}
 
 void render_component(struct component_t* component) {
     if (!component) {
@@ -27,6 +52,10 @@ void render_component(struct component_t* component) {
         case COMPONENT_TEXT: {
             text_data_t* data = (text_data_t*)component->data;
             if (data && data->content) {
+                // Skip rendering if clipped
+                if (render_is_clipped(component->x, component->y)) {
+                    break;
+                }
                 term_move_cursor(component->x, component->y);
                 term_write(data->content);
             }
@@ -36,6 +65,10 @@ void render_component(struct component_t* component) {
         case COMPONENT_BUTTON: {
             button_data_t* data = (button_data_t*)component->data;
             if (data && data->label) {
+                // Skip rendering if clipped
+                if (render_is_clipped(component->x, component->y)) {
+                    break;
+                }
                 term_move_cursor(component->x, component->y);
                 if (component->focused) {
                     term_write(">");
@@ -53,6 +86,11 @@ void render_component(struct component_t* component) {
         case COMPONENT_INPUT: {
             input_data_t* data = (input_data_t*)component->data;
             if (data && data->buffer) {
+                // Skip rendering if clipped
+                if (render_is_clipped(component->x, component->y)) {
+                    break;
+                }
+
                 int display_width = component->width - 2;
                 size_t content_len = strlen(data->buffer);
 
@@ -103,8 +141,63 @@ void render_component(struct component_t* component) {
                 }
 
                 for (int i = start_index; i < end_index; i++) {
-                    term_move_cursor(component->x, component->y + (i - start_index));
+                    int y = component->y + (i - start_index);
+                    // Skip rendering if clipped
+                    if (render_is_clipped(component->x, y)) {
+                        continue;
+                    }
+                    term_move_cursor(component->x, y);
                     term_write(data->items[i]);
+                }
+            }
+            break;
+        }
+
+        case COMPONENT_SCROLLVIEW: {
+            scrollview_data_t* data = (scrollview_data_t*)component->data;
+            if (data && data->content) {
+                // Clear the viewport area first
+                for (int row = 0; row < component->height; row++) {
+                    term_move_cursor(component->x, component->y + row);
+                    for (int col = 0; col < component->width; col++) {
+                        term_write(" ");
+                    }
+                }
+
+                // Show focus indicator if focused
+                if (component->focused) {
+                    term_move_cursor(component->x - 2, component->y);
+                    term_write(">");
+                    term_move_cursor(component->x + component->width, component->y);
+                    term_write("<");
+                }
+
+                // Set clipping rectangle to viewport bounds
+                render_set_clip(component->x, component->y, component->width, component->height);
+
+                // Render the content - only content within clip rect will be rendered
+                render_component(data->content);
+
+                // Clear clipping
+                render_clear_clip();
+
+                // Show scroll indicators if enabled
+                if (data->show_indicators) {
+                    int scroll_offset = data->scroll_offset ? *data->scroll_offset : 0;
+                    int content_height = data->content->height;
+                    int viewport_height = component->height;
+
+                    // Show up arrow if there's content above
+                    if (scroll_offset > 0) {
+                        term_move_cursor(component->x + component->width + 1, component->y);
+                        term_write("▲");
+                    }
+
+                    // Show down arrow if there's content below
+                    if (scroll_offset + viewport_height < content_height) {
+                        term_move_cursor(component->x + component->width + 1, component->y + viewport_height - 1);
+                        term_write("▼");
+                    }
                 }
             }
             break;

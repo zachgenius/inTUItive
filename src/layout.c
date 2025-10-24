@@ -76,6 +76,21 @@ static void measure_component(struct component_t* component) {
             break;
         }
 
+        case COMPONENT_SCROLLVIEW: {
+            scrollview_data_t* data = (scrollview_data_t*)component->data;
+            if (data->content) {
+                // ScrollView takes content's width but constrains height
+                component->width = data->content->width;
+                int content_height = data->content->height;
+                component->height = content_height < data->max_visible_height ?
+                                    content_height : data->max_visible_height;
+            } else {
+                component->width = 10;
+                component->height = 10;
+            }
+            break;
+        }
+
         case COMPONENT_VSTACK: {
             // VStack: width = max(children), height = sum(children)
             int max_width = 0;
@@ -124,9 +139,14 @@ void layout_measure(struct component_t* component) {
         layout_measure(component->children[i]);
     }
 
-    // For modals, also measure the content
+    // For modals and scrollviews, also measure the content
     if (component->type == COMPONENT_MODAL) {
         modal_data_t* data = (modal_data_t*)component->data;
+        if (data && data->content) {
+            layout_measure(data->content);
+        }
+    } else if (component->type == COMPONENT_SCROLLVIEW) {
+        scrollview_data_t* data = (scrollview_data_t*)component->data;
         if (data && data->content) {
             layout_measure(data->content);
         }
@@ -168,6 +188,15 @@ void layout_position(struct component_t* component, int x, int y) {
                     content_y++;
                 }
                 layout_position(data->content, content_x, content_y);
+            }
+            break;
+        }
+
+        case COMPONENT_SCROLLVIEW: {
+            scrollview_data_t* data = (scrollview_data_t*)component->data;
+            if (data && data->content && data->scroll_offset) {
+                // Position content, offset by scroll amount
+                layout_position(data->content, x, y - *data->scroll_offset);
             }
             break;
         }

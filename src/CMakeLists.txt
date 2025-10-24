@@ -16,6 +16,7 @@ set(INTUITIVE_TUI_SOURCES
     components/style.c
     components/list.c
     components/modal.c
+    components/scrollview.c
 )
 
 # Create both shared and static libraries

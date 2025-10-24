@@ -123,6 +123,27 @@ static bool handle_input_event(struct component_t* focused, event_t* event) {
                 return true;
             }
         }
+    } else if (focused->type == COMPONENT_SCROLLVIEW) {
+        scrollview_data_t* data = (scrollview_data_t*)focused->data;
+        if (!data || !data->content || !data->scroll_offset) {
+            return false;
+        }
+
+        int key = event->data.key.code;
+        int max_scroll = data->content->height - data->max_visible_height;
+        if (max_scroll < 0) max_scroll = 0;
+
+        if (key == KEY_UP) {
+            if (*data->scroll_offset > 0) {
+                (*data->scroll_offset)--;
+                return true;
+            }
+        } else if (key == KEY_DOWN) {
+            if (*data->scroll_offset < max_scroll) {
+                (*data->scroll_offset)++;
+                return true;
+            }
+        }
     }
 
     return false;

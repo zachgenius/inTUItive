@@ -48,12 +48,21 @@ else()
     target_link_libraries(dashboard intuitive)
 endif()
 
+# ScrollView demo example
+add_executable(scrollview_demo scrollview_demo.c)
+
+if(USE_STATIC_LIB)
+    target_link_libraries(scrollview_demo intuitive_static)
+else()
+    target_link_libraries(scrollview_demo intuitive)
+endif()
+
 # Set output directory for examples
-set_target_properties(hello_world counter todo_app styling_demo dashboard PROPERTIES
+set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples
 )
 
 # Installation rules for examples
-install(TARGETS hello_world counter todo_app styling_demo dashboard
+install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo
     RUNTIME DESTINATION bin/examples
 )
