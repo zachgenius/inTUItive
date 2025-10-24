@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include "../include/intuitive.h"
 
 /**
  * Component types
@@ -12,6 +13,8 @@ typedef enum {
     COMPONENT_HSTACK,
     COMPONENT_BUTTON,
     COMPONENT_INPUT,
+    COMPONENT_LIST,
+    COMPONENT_MODAL,
 } component_type_t;
 
 /**
@@ -36,6 +39,11 @@ struct component_t {
     bool focusable;
     bool focused;
     int focus_index;
+
+    // Style information
+    color_t fg_color;
+    color_t bg_color;
+    style_t style;
 };
 
 /**
@@ -62,6 +70,26 @@ typedef struct {
     size_t cursor_pos;
     size_t scroll_offset;
 } input_data_t;
+
+/**
+ * List component data
+ */
+typedef struct {
+    char** items;
+    int item_count;
+    int scroll_offset;
+    int max_visible_items;
+} list_data_t;
+
+/**
+ * Modal component data
+ */
+typedef struct {
+    bool* is_open;
+    char* title;
+    struct component_t* content;
+    void (*on_close)(void);
+} modal_data_t;
 
 /**
  * Create a new component of the given type

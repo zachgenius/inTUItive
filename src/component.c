@@ -21,6 +21,9 @@ struct component_t* component_create(component_type_t type) {
     component->focusable = false;
     component->focused = false;
     component->focus_index = -1;
+    component->fg_color = COLOR_DEFAULT;
+    component->bg_color = COLOR_DEFAULT;
+    component->style = STYLE_NONE;
 
     return component;
 }
@@ -69,6 +72,24 @@ void component_free(struct component_t* component) {
             case COMPONENT_INPUT: {
                 input_data_t* input_data = (input_data_t*)component->data;
                 free(input_data);
+                break;
+            }
+            case COMPONENT_LIST: {
+                list_data_t* list_data = (list_data_t*)component->data;
+                if (list_data->items) {
+                    for (int i = 0; i < list_data->item_count; i++) {
+                        free(list_data->items[i]);
+                    }
+                    free(list_data->items);
+                }
+                free(list_data);
+                break;
+            }
+            case COMPONENT_MODAL: {
+                modal_data_t* modal_data = (modal_data_t*)component->data;
+                free(modal_data->title);
+                component_free(modal_data->content);
+                free(modal_data);
                 break;
             }
             case COMPONENT_VSTACK:

@@ -13,6 +13,9 @@ set(INTUITIVE_TUI_SOURCES
     components/hstack.c
     components/button.c
     components/input.c
+    components/style.c
+    components/list.c
+    components/modal.c
 )
 
 # Create both shared and static libraries

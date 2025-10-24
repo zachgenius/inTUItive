@@ -9,6 +9,20 @@ void render_component(struct component_t* component) {
         return;
     }
 
+    // Apply component styling
+    bool has_style = (component->fg_color != COLOR_DEFAULT ||
+                      component->bg_color != COLOR_DEFAULT ||
+                      component->style != STYLE_NONE);
+
+    if (has_style) {
+        if (component->fg_color != COLOR_DEFAULT || component->bg_color != COLOR_DEFAULT) {
+            term_set_color(component->fg_color, component->bg_color);
+        }
+        if (component->style != STYLE_NONE) {
+            term_set_style(component->style);
+        }
+    }
+
     switch (component->type) {
         case COMPONENT_TEXT: {
             text_data_t* data = (text_data_t*)component->data;
@@ -77,11 +91,98 @@ void render_component(struct component_t* component) {
             break;
         }
 
+        case COMPONENT_LIST: {
+            list_data_t* data = (list_data_t*)component->data;
+            if (data && data->items) {
+                int visible_count = component->height;
+                int start_index = data->scroll_offset;
+                int end_index = start_index + visible_count;
+
+                if (end_index > data->item_count) {
+                    end_index = data->item_count;
+                }
+
+                for (int i = start_index; i < end_index; i++) {
+                    term_move_cursor(component->x, component->y + (i - start_index));
+                    term_write(data->items[i]);
+                }
+            }
+            break;
+        }
+
+        case COMPONENT_MODAL: {
+            modal_data_t* data = (modal_data_t*)component->data;
+            if (!data || !data->is_open || !*data->is_open) {
+                break;
+            }
+
+            int x = component->x;
+            int y = component->y;
+            int w = component->width;
+            int h = component->height;
+
+            // Clear entire modal background first
+            for (int row = 0; row < h; row++) {
+                term_move_cursor(x, y + row);
+                for (int col = 0; col < w; col++) {
+                    term_write(" ");
+                }
+            }
+
+            // Draw top border
+            term_move_cursor(x, y);
+            term_write("+");
+            for (int col = 1; col < w - 1; col++) {
+                term_write("-");
+            }
+            term_write("+");
+
+            // Draw title if present
+            if (data->title) {
+                term_move_cursor(x + 2, y + 1);
+                term_write(data->title);
+
+                // Draw side borders for title row
+                term_move_cursor(x, y + 1);
+                term_write("|");
+                term_move_cursor(x + w - 1, y + 1);
+                term_write("|");
+            }
+
+            // Render content
+            if (data->content) {
+                render_component(data->content);
+            }
+
+            // Draw side borders for all content rows
+            int start_row = data->title ? 2 : 1;
+            for (int row = start_row; row < h - 1; row++) {
+                term_move_cursor(x, y + row);
+                term_write("|");
+                term_move_cursor(x + w - 1, y + row);
+                term_write("|");
+            }
+
+            // Draw bottom border
+            term_move_cursor(x, y + h - 1);
+            term_write("+");
+            for (int col = 1; col < w - 1; col++) {
+                term_write("-");
+            }
+            term_write("+");
+            break;
+        }
+
         case COMPONENT_VSTACK:
         case COMPONENT_HSTACK:
             for (int i = 0; i < component->child_count; i++) {
                 render_component(component->children[i]);
             }
             break;
+    }
+
+    // Reset styling after rendering
+    if (has_style) {
+        term_reset_style();
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stddef.h>
+#include <stdbool.h>
 
 /**
  * inTUItive - A declarative TUI framework for C
@@ -29,6 +30,40 @@
 
 /* Opaque component type - users don't need to see the internals */
 typedef struct component_t component_t;
+
+/* ========== Colors and Styles ========== */
+
+/**
+ * Terminal colors (ANSI 16-color palette)
+ */
+typedef enum {
+    COLOR_DEFAULT = -1,
+    COLOR_BLACK = 0,
+    COLOR_RED = 1,
+    COLOR_GREEN = 2,
+    COLOR_YELLOW = 3,
+    COLOR_BLUE = 4,
+    COLOR_MAGENTA = 5,
+    COLOR_CYAN = 6,
+    COLOR_WHITE = 7,
+    COLOR_BRIGHT_BLACK = 8,
+    COLOR_BRIGHT_RED = 9,
+    COLOR_BRIGHT_GREEN = 10,
+    COLOR_BRIGHT_YELLOW = 11,
+    COLOR_BRIGHT_BLUE = 12,
+    COLOR_BRIGHT_MAGENTA = 13,
+    COLOR_BRIGHT_CYAN = 14,
+    COLOR_BRIGHT_WHITE = 15,
+} color_t;
+
+/**
+ * Text style flags (can be combined with bitwise OR)
+ */
+typedef enum {
+    STYLE_NONE = 0,
+    STYLE_BOLD = 1 << 0,
+    STYLE_UNDERLINE = 1 << 1,
+} style_t;
 
 /* ========== TUI Core API ========== */
 
@@ -108,3 +143,64 @@ component_t* Button(const char* label, void (*on_click)(void));
  * Example: Input(my_buffer, sizeof(my_buffer))
  */
 component_t* Input(char* buffer, size_t size);
+
+/**
+ * Create a List component
+ * Displays a scrollable list of items
+ * Shows up to 10 items at a time, with automatic scrolling
+ *
+ * Example: List(items, 5) where items is const char*[]
+ */
+component_t* List(const char** items, int count);
+
+/**
+ * Create a Modal dialog component
+ * Displays content in an overlay box with optional title
+ * Only renders when *is_open is true
+ * Call on_close() callback to handle dismissal (e.g., pressing ESC)
+ *
+ * Example: Modal(&show_modal, "Alert", Text("Hello!"), close_modal)
+ */
+component_t* Modal(bool* is_open, const char* title, component_t* content, void (*on_close)(void));
+
+/* ========== Style Modifiers ========== */
+
+/**
+ * Set both foreground and background colors for a component
+ * Returns the same component for chaining
+ *
+ * Example: Color(Text("Error!"), COLOR_RED, COLOR_DEFAULT)
+ */
+component_t* Color(component_t* comp, color_t fg, color_t bg);
+
+/**
+ * Set foreground color for a component
+ * Returns the same component for chaining
+ *
+ * Example: FgColor(Text("Success!"), COLOR_GREEN)
+ */
+component_t* FgColor(component_t* comp, color_t fg);
+
+/**
+ * Set background color for a component
+ * Returns the same component for chaining
+ *
+ * Example: BgColor(Text("Highlighted"), COLOR_YELLOW)
+ */
+component_t* BgColor(component_t* comp, color_t bg);
+
+/**
+ * Make a component's text bold
+ * Returns the same component for chaining
+ *
+ * Example: Bold(Text("Important!"))
+ */
+component_t* Bold(component_t* comp);
+
+/**
+ * Underline a component's text
+ * Returns the same component for chaining
+ *
+ * Example: Underline(Text("Link"))
+ */
+component_t* Underline(component_t* comp);

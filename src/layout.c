@@ -42,6 +42,40 @@ static void measure_component(struct component_t* component) {
             break;
         }
 
+        case COMPONENT_LIST: {
+            list_data_t* data = (list_data_t*)component->data;
+            int max_width = 0;
+
+            for (int i = 0; i < data->item_count; i++) {
+                int item_len = strlen(data->items[i]);
+                if (item_len > max_width) {
+                    max_width = item_len;
+                }
+            }
+
+            component->width = max_width;
+            int visible_items = data->item_count < data->max_visible_items ?
+                                data->item_count : data->max_visible_items;
+            component->height = visible_items;
+            break;
+        }
+
+        case COMPONENT_MODAL: {
+            modal_data_t* data = (modal_data_t*)component->data;
+            if (data->content) {
+                int title_len = data->title ? strlen(data->title) : 0;
+                int content_width = data->content->width;
+                int max_width = title_len > content_width ? title_len : content_width;
+
+                component->width = max_width + 4;
+                component->height = data->content->height + 4;
+            } else {
+                component->width = 20;
+                component->height = 5;
+            }
+            break;
+        }
+
         case COMPONENT_VSTACK: {
             // VStack: width = max(children), height = sum(children)
             int max_width = 0;
@@ -90,6 +124,14 @@ void layout_measure(struct component_t* component) {
         layout_measure(component->children[i]);
     }
 
+    // For modals, also measure the content
+    if (component->type == COMPONENT_MODAL) {
+        modal_data_t* data = (modal_data_t*)component->data;
+        if (data && data->content) {
+            layout_measure(data->content);
+        }
+    }
+
     // Then measure this component
     measure_component(component);
 }
@@ -107,7 +149,28 @@ void layout_position(struct component_t* component, int x, int y) {
         case COMPONENT_TEXT:
         case COMPONENT_BUTTON:
         case COMPONENT_INPUT:
+        case COMPONENT_LIST:
             break;
+
+        case COMPONENT_MODAL: {
+            modal_data_t* data = (modal_data_t*)component->data;
+            if (data && data->content) {
+                // Center modal on screen (ignore x, y from layout)
+                int modal_x = 10;
+                int modal_y = 5;
+
+                component->x = modal_x;
+                component->y = modal_y;
+
+                int content_x = modal_x + 2;
+                int content_y = modal_y + 2;
+                if (data->title) {
+                    content_y++;
+                }
+                layout_position(data->content, content_x, content_y);
+            }
+            break;
+        }
 
         case COMPONENT_VSTACK: {
             // Stack children vertically

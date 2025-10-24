@@ -30,12 +30,30 @@ else()
     target_link_libraries(todo_app intuitive)
 endif()
 
+# Styling demo example
+add_executable(styling_demo styling_demo.c)
+
+if(USE_STATIC_LIB)
+    target_link_libraries(styling_demo intuitive_static)
+else()
+    target_link_libraries(styling_demo intuitive)
+endif()
+
+# Dashboard example (Phase 2 milestone)
+add_executable(dashboard dashboard.c)
+
+if(USE_STATIC_LIB)
+    target_link_libraries(dashboard intuitive_static)
+else()
+    target_link_libraries(dashboard intuitive)
+endif()
+
 # Set output directory for examples
-set_target_properties(hello_world counter todo_app PROPERTIES
+set_target_properties(hello_world counter todo_app styling_demo dashboard PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples
 )
 
 # Installation rules for examples
-install(TARGETS hello_world counter todo_app
+install(TARGETS hello_world counter todo_app styling_demo dashboard
     RUNTIME DESTINATION bin/examples
 )

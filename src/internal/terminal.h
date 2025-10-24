@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "../include/intuitive.h"
 
 /**
  * Terminal abstraction layer
@@ -56,3 +57,19 @@ void term_hide_cursor(void);
  * Show the cursor
  */
 void term_show_cursor(void);
+
+/**
+ * Set foreground and background colors
+ * Use COLOR_DEFAULT to keep current color
+ */
+void term_set_color(color_t fg, color_t bg);
+
+/**
+ * Set text style (bold, underline, etc.)
+ */
+void term_set_style(style_t style);
+
+/**
+ * Reset all colors and styles to default
+ */
+void term_reset_style(void);

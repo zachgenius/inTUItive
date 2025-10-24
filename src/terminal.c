@@ -113,3 +113,56 @@ void term_hide_cursor(void) {
 void term_show_cursor(void) {
     term_write(ANSI_SHOW_CURSOR);
 }
+
+void term_set_color(color_t fg, color_t bg) {
+    char buf[64];
+    int offset = 0;
+
+    buf[offset++] = '\033';
+    buf[offset++] = '[';
+
+    bool need_semicolon = false;
+
+    if (fg != COLOR_DEFAULT) {
+        if (fg <= 7) {
+            offset += snprintf(buf + offset, sizeof(buf) - offset, "3%d", fg);
+        } else {
+            offset += snprintf(buf + offset, sizeof(buf) - offset, "9%d", fg - 8);
+        }
+        need_semicolon = true;
+    }
+
+    if (bg != COLOR_DEFAULT) {
+        if (need_semicolon) {
+            buf[offset++] = ';';
+        }
+        if (bg <= 7) {
+            offset += snprintf(buf + offset, sizeof(buf) - offset, "4%d", bg);
+        } else {
+            offset += snprintf(buf + offset, sizeof(buf) - offset, "10%d", bg - 8);
+        }
+    }
+
+    buf[offset++] = 'm';
+    buf[offset] = '\0';
+
+    term_write(buf);
+}
+
+void term_set_style(style_t style) {
+    if (style == STYLE_NONE) {
+        return;
+    }
+
+    if (style & STYLE_BOLD) {
+        term_write("\033[1m");
+    }
+
+    if (style & STYLE_UNDERLINE) {
+        term_write("\033[4m");
+    }
+}
+
+void term_reset_style(void) {
+    term_write("\033[0m");
+}
