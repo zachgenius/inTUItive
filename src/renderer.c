@@ -336,7 +336,13 @@ void render_component(struct component_t* component) {
 
         case COMPONENT_MODAL: {
             modal_data_t* data = (modal_data_t*)component->data;
-            if (!data || !data->is_open || !*data->is_open) {
+            if (!data) {
+                break;
+            }
+
+            // Simple check: only render if modal should be open
+            bool should_be_open = data->is_open && *data->is_open;
+            if (!should_be_open) {
                 break;
             }
 
@@ -586,7 +592,6 @@ void render_component(struct component_t* component) {
                 break;
             }
 
-            uint64_t now = anim_get_time_us();
             int term_width, term_height;
             tui_get_terminal_size(&term_width, &term_height);
 
@@ -595,155 +600,53 @@ void render_component(struct component_t* component) {
             int toast_width = msg_len + 4;  // +4 for borders and padding
             int toast_height = 3;  // Top border, message, bottom border
 
-            // Calculate base position based on position type
-            int base_x, base_y;
-            int slide_distance = toast_width + 2;  // Distance to slide from off-screen
-
+            // Calculate position based on position type
+            int toast_x, toast_y;
             switch (data->position) {
                 case TOAST_TOP:
-                    base_x = (term_width - toast_width) / 2;
-                    base_y = 1;
-                    slide_distance = toast_height + 1;
+                    toast_x = (term_width - toast_width) / 2;
+                    toast_y = 1;
                     break;
                 case TOAST_BOTTOM:
-                    base_x = (term_width - toast_width) / 2;
-                    base_y = term_height - toast_height - 1;
-                    slide_distance = toast_height + 1;
+                    toast_x = (term_width - toast_width) / 2;
+                    toast_y = term_height - toast_height - 1;
                     break;
                 case TOAST_TOP_RIGHT:
-                    base_x = term_width - toast_width - 2;
-                    base_y = 1;
+                    toast_x = term_width - toast_width - 2;
+                    toast_y = 1;
                     break;
                 case TOAST_BOTTOM_RIGHT:
-                    base_x = term_width - toast_width - 2;
-                    base_y = term_height - toast_height - 1;
+                    toast_x = term_width - toast_width - 2;
+                    toast_y = term_height - toast_height - 1;
                     break;
             }
 
-            // State machine for toast animation
-            float offset = 0.0f;
+            // Draw toast background and border
+            for (int row = 0; row < toast_height; row++) {
+                int y = toast_y + row;
+                if (y < 0 || y >= term_height) continue;
 
-            switch (data->state) {
-                case TOAST_STATE_SLIDING_IN:
-                    // Start slide-in animation if not already started
-                    if (!data->slide_animation) {
-                        data->slide_animation = anim_create(
-                            (float)slide_distance,  // From off-screen
-                            0.0f,                   // To on-screen
-                            300,                    // 300ms duration
-                            EASE_OUT
-                        );
-                        anim_start(data->slide_animation);
+                term_move_cursor(toast_x, y);
+
+                if (row == 0) {
+                    // Top border
+                    term_write("+");
+                    for (int i = 0; i < toast_width - 2; i++) {
+                        term_write("-");
                     }
-
-                    // Update animation
-                    if (anim_update(data->slide_animation)) {
-                        offset = anim_get_value(data->slide_animation);
-                        tui_request_render();  // Continue animating
-                    } else {
-                        // Animation complete, transition to visible state
-                        data->state = TOAST_STATE_VISIBLE;
-                        data->visible_start_time = now;
-                        anim_free(data->slide_animation);
-                        data->slide_animation = NULL;
-                        offset = 0.0f;
+                    term_write("+");
+                } else if (row == toast_height - 1) {
+                    // Bottom border
+                    term_write("+");
+                    for (int i = 0; i < toast_width - 2; i++) {
+                        term_write("-");
                     }
-                    break;
-
-                case TOAST_STATE_VISIBLE:
-                    offset = 0.0f;
-
-                    // Check if auto-dismiss timer expired
-                    if (data->duration_ms > 0) {
-                        uint64_t elapsed_ms = (now - data->visible_start_time) / 1000;
-                        if (elapsed_ms >= (uint64_t)data->duration_ms) {
-                            // Start slide-out animation
-                            data->state = TOAST_STATE_SLIDING_OUT;
-                        }
-                    }
-                    break;
-
-                case TOAST_STATE_SLIDING_OUT:
-                    // Start slide-out animation if not already started
-                    if (!data->slide_animation) {
-                        data->slide_animation = anim_create(
-                            0.0f,                   // From on-screen
-                            (float)slide_distance,  // To off-screen
-                            200,                    // 200ms duration
-                            EASE_IN
-                        );
-                        anim_start(data->slide_animation);
-                    }
-
-                    // Update animation
-                    if (anim_update(data->slide_animation)) {
-                        offset = anim_get_value(data->slide_animation);
-                        tui_request_render();  // Continue animating
-                    } else {
-                        // Animation complete, hide toast
-                        data->state = TOAST_STATE_HIDDEN;
-                        *data->is_visible = false;
-                        anim_free(data->slide_animation);
-                        data->slide_animation = NULL;
-
-                        // Call on_close callback if provided
-                        if (data->on_close) {
-                            data->on_close();
-                        }
-                    }
-                    break;
-
-                case TOAST_STATE_HIDDEN:
-                    // Don't render
-                    break;
-            }
-
-            // Calculate final position with animation offset
-            int final_x = base_x;
-            int final_y = base_y;
-
-            if (data->position == TOAST_TOP || data->position == TOAST_BOTTOM) {
-                // Slide vertically
-                final_y = (data->position == TOAST_TOP) ?
-                          (base_y - (int)offset) :
-                          (base_y + (int)offset);
-            } else {
-                // Slide horizontally (from right)
-                final_x = base_x + (int)offset;
-            }
-
-            // Only render if on-screen
-            if (data->state != TOAST_STATE_HIDDEN &&
-                final_x >= 0 && final_x < term_width &&
-                final_y >= 0 && final_y < term_height) {
-
-                // Draw toast background and border
-                for (int row = 0; row < toast_height; row++) {
-                    int y = final_y + row;
-                    if (y < 0 || y >= term_height) continue;
-
-                    term_move_cursor(final_x, y);
-
-                    if (row == 0) {
-                        // Top border
-                        term_write("+");
-                        for (int i = 0; i < toast_width - 2; i++) {
-                            term_write("-");
-                        }
-                        term_write("+");
-                    } else if (row == toast_height - 1) {
-                        // Bottom border
-                        term_write("+");
-                        for (int i = 0; i < toast_width - 2; i++) {
-                            term_write("-");
-                        }
-                        term_write("+");
-                    } else {
-                        // Message row
-                        term_write("| ");
-                        term_write(data->message);
-                        term_write(" |");
-                    }
+                    term_write("+");
+                } else {
+                    // Message row
+                    term_write("| ");
+                    term_write(data->message);
+                    term_write(" |");
                 }
             }
             break;

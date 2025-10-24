@@ -145,9 +145,6 @@ void component_free(struct component_t* component) {
             case COMPONENT_TOAST: {
                 toast_data_t* toast_data = (toast_data_t*)component->data;
                 free(toast_data->message);
-                if (toast_data->slide_animation) {
-                    anim_free(toast_data->slide_animation);
-                }
                 free(toast_data);
                 break;
             }

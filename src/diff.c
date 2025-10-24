@@ -162,11 +162,9 @@ static unsigned int hash_component_data(struct component_t* component) {
                 hash = hash_string(data->message);
             }
             hash = hash_combine(hash, hash_int(data->position));
-            hash = hash_combine(hash, hash_int(data->duration_ms));
             if (data->is_visible) {
                 hash = hash_combine(hash, hash_int(*data->is_visible ? 1 : 0));
             }
-            // Note: animation state and timers are not part of content hash
             break;
         }
 
@@ -280,17 +278,6 @@ bool component_diff_trees(struct component_t* old_tree, struct component_t* new_
             new_data->scroll_animation = old_data->scroll_animation;
             // Prevent double-free by nulling out old animation
             old_data->scroll_animation = NULL;
-        }
-    } else if (old_tree->type == COMPONENT_TOAST && new_tree->type == COMPONENT_TOAST) {
-        toast_data_t* old_data = (toast_data_t*)old_tree->data;
-        toast_data_t* new_data = (toast_data_t*)new_tree->data;
-        if (old_data && new_data) {
-            // Preserve toast animation state
-            new_data->state = old_data->state;
-            new_data->slide_animation = old_data->slide_animation;
-            new_data->visible_start_time = old_data->visible_start_time;
-            // Prevent double-free by nulling out old animation
-            old_data->slide_animation = NULL;
         }
     }
 

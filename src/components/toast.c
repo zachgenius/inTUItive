@@ -29,13 +29,7 @@ component_t* Toast(ToastConfig config) {
 
     data->is_visible = config.is_visible;
     data->position = config.position;
-    data->duration_ms = config.duration_ms;
     data->on_close = config.on_close;
-
-    // Initialize animation state
-    data->state = TOAST_STATE_SLIDING_IN;
-    data->slide_animation = NULL;
-    data->visible_start_time = 0;
 
     component_set_data(comp, data);
 

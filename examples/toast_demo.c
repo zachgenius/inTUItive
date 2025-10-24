@@ -71,7 +71,6 @@ static component_t* app(void) {
             .message = "File saved successfully!",
             .is_visible = &state.show_toast_bottom,
             .position = TOAST_BOTTOM,
-            .duration_ms = 2000,
             .on_close = close_toast
         }),
 
@@ -79,7 +78,6 @@ static component_t* app(void) {
             .message = "Task completed!",
             .is_visible = &state.show_toast_top,
             .position = TOAST_TOP,
-            .duration_ms = 2000,
             .on_close = close_toast
         }),
 
@@ -87,7 +85,6 @@ static component_t* app(void) {
             .message = "New message received",
             .is_visible = &state.show_toast_top_right,
             .position = TOAST_TOP_RIGHT,
-            .duration_ms = 2000,
             .on_close = close_toast
         }),
 
@@ -95,7 +92,6 @@ static component_t* app(void) {
             .message = "Download complete!",
             .is_visible = &state.show_toast_bottom_right,
             .position = TOAST_BOTTOM_RIGHT,
-            .duration_ms = 2000,
             .on_close = close_toast
         }),
 
