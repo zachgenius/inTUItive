@@ -8,6 +8,7 @@
 static struct component_t* focusable_list[MAX_FOCUSABLE];
 static int focusable_count = 0;
 static int current_focus_index = -1;
+static int saved_focus_index = -1;  // Save focus before modal opens
 
 static struct component_t* find_open_modal(struct component_t* component) {
     if (!component) {
@@ -57,10 +58,25 @@ static void build_focusable_list_recursive(struct component_t* component) {
 
 void focus_build_list(struct component_t* root) {
     int prev_focus = current_focus_index;
-    focus_clear();
 
     // Check if there's an open modal - if so, only collect focus from it
     struct component_t* open_modal = find_open_modal(root);
+
+    if (open_modal) {
+        // Modal is open - save current focus if not already saved
+        if (saved_focus_index == -1 && prev_focus >= 0) {
+            saved_focus_index = prev_focus;
+        }
+    } else {
+        // No modal - try to restore saved focus
+        if (saved_focus_index >= 0) {
+            prev_focus = saved_focus_index;
+            saved_focus_index = -1;  // Clear saved focus
+        }
+    }
+
+    focus_clear();
+
     if (open_modal) {
         modal_data_t* data = (modal_data_t*)open_modal->data;
         if (data && data->content) {
