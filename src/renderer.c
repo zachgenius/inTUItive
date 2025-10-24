@@ -29,6 +29,24 @@ bool render_is_clipped(int x, int y) {
             y < clip_y || y >= clip_y + clip_height);
 }
 
+// Helper function to pad string to fixed width
+static void write_padded(const char* str, int width) {
+    int len = strlen(str);
+    if (len >= width) {
+        // String too long, truncate
+        for (int i = 0; i < width; i++) {
+            char buf[2] = {str[i], '\0'};
+            term_write(buf);
+        }
+    } else {
+        // Write string and pad with spaces
+        term_write(str);
+        for (int i = len; i < width; i++) {
+            term_write(" ");
+        }
+    }
+}
+
 void render_component(struct component_t* component) {
     if (!component) {
         return;
@@ -140,6 +158,8 @@ void render_component(struct component_t* component) {
                     end_index = data->item_count;
                 }
 
+                int selected = data->selected_index ? *data->selected_index : -1;
+
                 for (int i = start_index; i < end_index; i++) {
                     int y = component->y + (i - start_index);
                     // Skip rendering if clipped
@@ -147,7 +167,18 @@ void render_component(struct component_t* component) {
                         continue;
                     }
                     term_move_cursor(component->x, y);
-                    term_write(data->items[i]);
+
+                    // Show selection indicator if this item is selected
+                    if (i == selected && component->focused) {
+                        term_write("> ");
+                        term_write(data->items[i]);
+                    } else if (i == selected) {
+                        term_write("* ");
+                        term_write(data->items[i]);
+                    } else {
+                        term_write("  ");
+                        term_write(data->items[i]);
+                    }
                 }
             }
             break;
@@ -263,6 +294,89 @@ void render_component(struct component_t* component) {
                 term_write("-");
             }
             term_write("+");
+            break;
+        }
+
+        case COMPONENT_TABLE: {
+            table_data_t* data = (table_data_t*)component->data;
+            if (!data) break;
+
+            int x = component->x;
+            int y = component->y;
+            int current_y = y;
+
+            if (data->show_borders) {
+                // Top border
+                term_move_cursor(x, current_y++);
+                term_write("+");
+                for (int col = 0; col < data->header_count; col++) {
+                    for (int i = 0; i < data->column_widths[col] + 2; i++) {
+                        term_write("-");
+                    }
+                    term_write("+");
+                }
+
+                // Header row
+                term_move_cursor(x, current_y++);
+                term_write("|");
+                for (int col = 0; col < data->header_count; col++) {
+                    term_write(" ");
+                    write_padded(data->headers[col], data->column_widths[col]);
+                    term_write(" |");
+                }
+
+                // Separator
+                term_move_cursor(x, current_y++);
+                term_write("+");
+                for (int col = 0; col < data->header_count; col++) {
+                    for (int i = 0; i < data->column_widths[col] + 2; i++) {
+                        term_write("-");
+                    }
+                    term_write("+");
+                }
+
+                // Data rows
+                for (int row = 0; row < data->row_count; row++) {
+                    term_move_cursor(x, current_y++);
+                    term_write("|");
+                    for (int col = 0; col < data->header_count; col++) {
+                        term_write(" ");
+                        write_padded(data->rows[row][col], data->column_widths[col]);
+                        term_write(" |");
+                    }
+                }
+            } else {
+                // Header row without borders
+                term_move_cursor(x, current_y++);
+                for (int col = 0; col < data->header_count; col++) {
+                    write_padded(data->headers[col], data->column_widths[col]);
+                    if (col < data->header_count - 1) {
+                        term_write("  ");
+                    }
+                }
+
+                // Separator line
+                term_move_cursor(x, current_y++);
+                for (int col = 0; col < data->header_count; col++) {
+                    for (int i = 0; i < data->column_widths[col]; i++) {
+                        term_write("-");
+                    }
+                    if (col < data->header_count - 1) {
+                        term_write("  ");
+                    }
+                }
+
+                // Data rows
+                for (int row = 0; row < data->row_count; row++) {
+                    term_move_cursor(x, current_y++);
+                    for (int col = 0; col < data->header_count; col++) {
+                        write_padded(data->rows[row][col], data->column_widths[col]);
+                        if (col < data->header_count - 1) {
+                            term_write("  ");
+                        }
+                    }
+                }
+            }
             break;
         }
 

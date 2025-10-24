@@ -91,6 +91,33 @@ static void measure_component(struct component_t* component) {
             break;
         }
 
+        case COMPONENT_TABLE: {
+            table_data_t* data = (table_data_t*)component->data;
+            // Calculate total width: sum of column widths + borders/padding
+            int total_width = 0;
+            for (int i = 0; i < data->header_count; i++) {
+                total_width += data->column_widths[i];
+            }
+
+            if (data->show_borders) {
+                // Add space for borders: "| col1 | col2 | col3 |"
+                total_width += (data->header_count + 1) * 3; // "| " and " |" for each column
+            } else {
+                // Add space between columns
+                total_width += (data->header_count - 1) * 2; // "  " between columns
+            }
+
+            component->width = total_width;
+
+            // Height: header + separator + rows + borders
+            if (data->show_borders) {
+                component->height = 3 + data->row_count; // top border + header + sep + rows
+            } else {
+                component->height = 2 + data->row_count; // header + sep + rows
+            }
+            break;
+        }
+
         case COMPONENT_VSTACK: {
             // VStack: width = max(children), height = sum(children)
             int max_width = 0;

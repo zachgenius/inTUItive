@@ -16,6 +16,7 @@ typedef enum {
     COMPONENT_LIST,
     COMPONENT_MODAL,
     COMPONENT_SCROLLVIEW,
+    COMPONENT_TABLE,
 } component_type_t;
 
 /**
@@ -80,6 +81,8 @@ typedef struct {
     int item_count;
     int scroll_offset;
     int max_visible_items;
+    int* selected_index;         // Pointer to external selected index (optional)
+    void (*on_select)(int index); // Callback when item selected (optional)
 } list_data_t;
 
 /**
@@ -101,6 +104,18 @@ typedef struct {
     int max_visible_height;
     bool show_indicators;  // Whether to show scroll indicators (▲/▼)
 } scrollview_data_t;
+
+/**
+ * Table component data
+ */
+typedef struct {
+    char** headers;         // Array of header strings
+    int header_count;       // Number of columns
+    char*** rows;           // 2D array of cell strings [row][col]
+    int row_count;          // Number of rows
+    int* column_widths;     // Width of each column (auto-calculated)
+    bool show_borders;      // Whether to show borders
+} table_data_t;
 
 /**
  * Create a new component of the given type

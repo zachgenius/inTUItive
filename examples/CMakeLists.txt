@@ -66,12 +66,21 @@ else()
     target_link_libraries(file_manager intuitive)
 endif()
 
+# Table demo example
+add_executable(table_demo table_demo.c)
+
+if(USE_STATIC_LIB)
+    target_link_libraries(table_demo intuitive_static)
+else()
+    target_link_libraries(table_demo intuitive)
+endif()
+
 # Set output directory for examples
-set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager PROPERTIES
+set_target_properties(hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples
 )
 
 # Installation rules for examples
-install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager
+install(TARGETS hello_world counter todo_app styling_demo dashboard scrollview_demo file_manager table_demo
     RUNTIME DESTINATION bin/examples
 )

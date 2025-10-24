@@ -144,6 +144,42 @@ static bool handle_input_event(struct component_t* focused, event_t* event) {
                 return true;
             }
         }
+    } else if (focused->type == COMPONENT_LIST) {
+        list_data_t* data = (list_data_t*)focused->data;
+        if (!data || !data->selected_index) {
+            return false;
+        }
+
+        int key = event->data.key.code;
+        int selected = *data->selected_index;
+
+        if (key == KEY_UP) {
+            if (selected > 0) {
+                (*data->selected_index)--;
+
+                // Auto-scroll if selection moves off screen
+                if (*data->selected_index < data->scroll_offset) {
+                    data->scroll_offset = *data->selected_index;
+                }
+                return true;
+            }
+        } else if (key == KEY_DOWN) {
+            if (selected < data->item_count - 1) {
+                (*data->selected_index)++;
+
+                // Auto-scroll if selection moves off screen
+                int visible_end = data->scroll_offset + data->max_visible_items;
+                if (*data->selected_index >= visible_end) {
+                    data->scroll_offset = *data->selected_index - data->max_visible_items + 1;
+                }
+                return true;
+            }
+        } else if (key == KEY_ENTER || key == '\r') {
+            if (data->on_select) {
+                data->on_select(*data->selected_index);
+                return true;
+            }
+        }
     }
 
     return false;

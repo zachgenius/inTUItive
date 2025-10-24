@@ -17,7 +17,6 @@ typedef struct {
     char current_path[MAX_PATH];
     char* file_list[MAX_FILES];
     int file_count;
-    int scroll_pos;
     int selected_index;
     bool show_error;
     char error_msg[256];
@@ -64,7 +63,6 @@ int compare_files(const void* a, const void* b) {
 
 void load_directory(const char* path) {
     free_file_list();
-    state.scroll_pos = 0;
     state.selected_index = 0;
 
     DIR* dir = opendir(path);
@@ -134,7 +132,7 @@ void navigate_up(void) {
     navigate_to(parent);
 }
 
-void navigate_into(int index) {
+void on_select_file(int index) {
     if (index < 0 || index >= state.file_count) {
         return;
     }
@@ -181,21 +179,15 @@ component_t* app(void) {
     items[idx++] = Text(count_label);
     items[idx++] = Text("");
 
-    // File list with ScrollView for long directories
+    // File list with selection support
     if (state.file_count > 0) {
         items[idx++] = Text("Files and Directories:");
-
-        // Create scrollable list of files
-        component_t* file_items[MAX_FILES + 1];
-        for (int i = 0; i < state.file_count && i < MAX_FILES; i++) {
-            file_items[i] = Text(state.file_list[i]);
-        }
-        file_items[state.file_count] = NULL;
-
-        component_t* file_list = VStackArray(file_items);
-        items[idx++] = ScrollView(file_list, &state.scroll_pos, (ScrollConfig){
-            .max_height = 15,
-            .show_indicators = true
+        items[idx++] = List((ListConfig){
+            .items = (const char**)state.file_list,
+            .count = state.file_count,
+            .max_visible = 15,
+            .selected_index = &state.selected_index,
+            .on_select = on_select_file
         });
     } else {
         items[idx++] = FgColor(Text("(empty directory)"), COLOR_BRIGHT_BLACK);
@@ -207,10 +199,9 @@ component_t* app(void) {
     // Controls
     items[idx++] = FgColor(Text("Controls:"), COLOR_BRIGHT_GREEN);
     items[idx++] = Text("  Tab - Focus file list");
-    items[idx++] = Text("  Up/Down - Scroll through files");
+    items[idx++] = Text("  Up/Down - Navigate list");
+    items[idx++] = Text("  Enter - Open directory");
     items[idx++] = Text("  q - Quit");
-    items[idx++] = Text("");
-    items[idx++] = FgColor(Text("Note: Navigation not yet implemented"), COLOR_BRIGHT_BLACK);
 
     items[idx] = NULL;
 

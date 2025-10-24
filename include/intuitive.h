@@ -156,9 +156,11 @@ component_t* Input(InputConfig config);
  * List configuration
  */
 typedef struct {
-    const char** items;      // Array of item strings
-    int count;               // Number of items
-    int max_visible;         // Maximum visible items (default: 10)
+    const char** items;          // Array of item strings
+    int count;                   // Number of items
+    int max_visible;             // Maximum visible items (default: 10)
+    int* selected_index;         // Pointer to selected index (external state, optional)
+    void (*on_select)(int index); // Callback when Enter pressed on item (optional)
 } ListConfig;
 
 /**
@@ -217,6 +219,36 @@ typedef struct {
  *   })
  */
 component_t* ScrollView(component_t* content, int* scroll_offset, ScrollConfig config);
+
+/**
+ * Table configuration
+ */
+typedef struct {
+    const char** headers;    // Array of header strings
+    const char*** rows;      // 2D array of cell strings [row][col]
+    int column_count;        // Number of columns
+    int row_count;           // Number of rows
+    bool show_borders;       // Show borders around cells (default: true)
+} TableConfig;
+
+/**
+ * Create a Table component
+ * Displays structured data in rows and columns with headers
+ *
+ * Example:
+ *   const char* headers[] = {"Name", "Age", "City"};
+ *   const char* row1[] = {"Alice", "30", "NYC"};
+ *   const char* row2[] = {"Bob", "25", "LA"};
+ *   const char** rows[] = {row1, row2};
+ *   Table((TableConfig){
+ *       .headers = headers,
+ *       .rows = rows,
+ *       .column_count = 3,
+ *       .row_count = 2,
+ *       .show_borders = true
+ *   })
+ */
+component_t* Table(TableConfig config);
 
 /* ========== Style Modifiers ========== */
 

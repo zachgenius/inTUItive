@@ -98,6 +98,29 @@ void component_free(struct component_t* component) {
                 free(scrollview_data);
                 break;
             }
+            case COMPONENT_TABLE: {
+                table_data_t* table_data = (table_data_t*)component->data;
+                if (table_data->headers) {
+                    for (int i = 0; i < table_data->header_count; i++) {
+                        free(table_data->headers[i]);
+                    }
+                    free(table_data->headers);
+                }
+                if (table_data->rows) {
+                    for (int r = 0; r < table_data->row_count; r++) {
+                        if (table_data->rows[r]) {
+                            for (int c = 0; c < table_data->header_count; c++) {
+                                free(table_data->rows[r][c]);
+                            }
+                            free(table_data->rows[r]);
+                        }
+                    }
+                    free(table_data->rows);
+                }
+                free(table_data->column_widths);
+                free(table_data);
+                break;
+            }
             case COMPONENT_VSTACK:
             case COMPONENT_HSTACK:
                 break;
