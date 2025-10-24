@@ -48,6 +48,10 @@ struct component_t {
     color_t fg_color;
     color_t bg_color;
     style_t style;
+
+    // Diffing/reconciliation information
+    bool dirty;  // Needs re-render
+    unsigned int content_hash;  // Hash of component content for quick comparison
 };
 
 /**

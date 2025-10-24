@@ -24,6 +24,8 @@ struct component_t* component_create(component_type_t type) {
     component->fg_color = COLOR_DEFAULT;
     component->bg_color = COLOR_DEFAULT;
     component->style = STYLE_NONE;
+    component->dirty = true;  // New components are dirty
+    component->content_hash = 0;
 
     return component;
 }

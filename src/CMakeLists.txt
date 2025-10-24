@@ -8,6 +8,7 @@ set(INTUITIVE_TUI_SOURCES
     tui.c
     events.c
     focus.c
+    diff.c
     components/text.c
     components/vstack.c
     components/hstack.c

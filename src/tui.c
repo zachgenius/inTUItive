@@ -6,6 +6,7 @@
 #include "internal/events.h"
 #include "internal/focus.h"
 #include "internal/tui.h"
+#include "internal/diff.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
@@ -18,6 +19,7 @@
 typedef struct {
     component_t* (*root_fn)(void);
     component_t* root;
+    component_t* prev_root;  // Previous tree for diffing
     bool running;
     bool needs_render;
     int term_width;
@@ -327,29 +329,44 @@ void tui_run(void) {
 
     while (tui_state.running) {
         if (tui_state.needs_render) {
-            if (tui_state.root) {
-                component_free(tui_state.root);
-            }
-
-            tui_state.root = tui_state.root_fn();
-            if (!tui_state.root) {
+            // Build new tree
+            component_t* new_root = tui_state.root_fn();
+            if (!new_root) {
                 break;
             }
 
-            focus_build_list(tui_state.root);
-            layout_measure(tui_state.root);
-            layout_position(tui_state.root, 0, 0);
-            term_clear();
-            term_hide_cursor();
+            // Measure and layout new tree
+            layout_measure(new_root);
+            layout_position(new_root, 0, 0);
 
-            tui_state.show_cursor = false;
-            render_component(tui_state.root);
+            // Diff with previous tree
+            bool has_changes = component_diff_trees(tui_state.prev_root, new_root);
 
-            if (tui_state.show_cursor) {
-                term_move_cursor(tui_state.cursor_x, tui_state.cursor_y);
-                term_show_cursor();
+            // Only render if there are actual changes
+            if (has_changes || !tui_state.prev_root) {
+                focus_build_list(new_root);
+                term_clear();
+                term_hide_cursor();
+
+                tui_state.show_cursor = false;
+                render_component(new_root);
+
+                if (tui_state.show_cursor) {
+                    term_move_cursor(tui_state.cursor_x, tui_state.cursor_y);
+                    term_show_cursor();
+                }
             }
 
+            // Free old trees and update state
+            if (tui_state.root) {
+                component_free(tui_state.root);
+            }
+            if (tui_state.prev_root) {
+                component_free(tui_state.prev_root);
+            }
+
+            tui_state.prev_root = tui_state.root;
+            tui_state.root = new_root;
             tui_state.needs_render = false;
         }
 
@@ -430,6 +447,9 @@ void tui_run(void) {
 
     if (tui_state.root) {
         component_free(tui_state.root);
+    }
+    if (tui_state.prev_root) {
+        component_free(tui_state.prev_root);
     }
     term_cleanup();
 }
