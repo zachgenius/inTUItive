@@ -36,41 +36,41 @@ component_t* app(void) {
     component_t* items[MAX_TODOS + 20];
     int idx = 0;
 
-    items[idx++] = Text(header, NULL);
-    items[idx++] = Text("", NULL);
+    items[idx++] = Text(header, TEXT_DEFAULT);
+    items[idx++] = Text("", TEXT_DEFAULT);
 
     items[idx++] = HStack(
-        Text("Add: ", NULL),
+        Text("Add: ", TEXT_DEFAULT),
         Input((InputConfig){
             .buffer = state.input_buffer,
             .size = sizeof(state.input_buffer)
         }),
-        Text(" ", NULL),
+        Text(" ", TEXT_DEFAULT),
         Button("Add", add_todo),
         NULL
     );
 
-    items[idx++] = Text("", NULL);
+    items[idx++] = Text("", TEXT_DEFAULT);
 
     if (state.count > 0) {
-        items[idx++] = Text("Items:", NULL);
+        items[idx++] = Text("Items:", TEXT_DEFAULT);
         for (int i = 0; i < state.count; i++) {
             char item_text[TODO_LENGTH + 10];
             snprintf(item_text, sizeof(item_text), "  %d. %s", i + 1, state.items[i]);
-            items[idx++] = Text(item_text, NULL);
+            items[idx++] = Text(item_text, TEXT_DEFAULT);
         }
 
-        items[idx++] = Text("", NULL);
+        items[idx++] = Text("", TEXT_DEFAULT);
         items[idx++] = Button("Clear All", clear_all);
     } else {
-        items[idx++] = Text("No items yet. Add one above!", NULL);
+        items[idx++] = Text("No items yet. Add one above!", TEXT_DEFAULT);
     }
 
-    items[idx++] = Text("", NULL);
-    items[idx++] = Text("Controls:", NULL);
-    items[idx++] = Text("  Tab: Navigate between fields", NULL);
-    items[idx++] = Text("  Enter: Add item / Activate button", NULL);
-    items[idx++] = Text("  q: Quit", NULL);
+    items[idx++] = Text("", TEXT_DEFAULT);
+    items[idx++] = Text("Controls:", TEXT_DEFAULT);
+    items[idx++] = Text("  Tab: Navigate between fields", TEXT_DEFAULT);
+    items[idx++] = Text("  Enter: Add item / Activate button", TEXT_DEFAULT);
+    items[idx++] = Text("  q: Quit", TEXT_DEFAULT);
     items[idx] = NULL;
 
     return VStackArray(items);

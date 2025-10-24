@@ -243,7 +243,7 @@ static component_t* progress_bar(float percentage, int width) {
         color = COLOR_BRIGHT_YELLOW;
     }
 
-    return Text(bar, &(TextConfig){
+    return Text(bar, (TextConfig){
         .fg_color = color
     });
 }
@@ -314,7 +314,7 @@ static component_t* app(void) {
         // Header
         AlignedVStack((StackConfig){
             .children = (component_t*[]){
-                Text("=== SYSTEM MONITOR ===", &(TextConfig){
+                Text("=== SYSTEM MONITOR ===", (TextConfig){
                     .fg_color = COLOR_BRIGHT_CYAN,
                     .style = STYLE_BOLD
                 }),
@@ -323,37 +323,37 @@ static component_t* app(void) {
             .alignment = ALIGN_CENTER,
             .spacing = 0
         }),
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
 
         // Stats panel with padding and spacing
         Padded(
             VStack(
                 // CPU stats
                 HStack(
-                    Text("CPU Usage:", &(TextConfig){
+                    Text("CPU Usage:", (TextConfig){
                         .fg_color = COLOR_BRIGHT_YELLOW,
                         .style = STYLE_BOLD
                     }),
-                    Text("  ", NULL),
-                    Text(cpu_str, NULL),
+                    Text("  ", TEXT_DEFAULT),
+                    Text(cpu_str, TEXT_DEFAULT),
                     NULL
                 ),
                 progress_bar(cpu_usage, 40),
-                Text("", NULL),
+                Text("", TEXT_DEFAULT),
 
                 // Memory stats
                 HStack(
-                    Text("Memory:   ", &(TextConfig){
+                    Text("Memory:   ", (TextConfig){
                         .fg_color = COLOR_BRIGHT_YELLOW,
                         .style = STYLE_BOLD
                     }),
-                    Text("  ", NULL),
-                    Text(mem_str, NULL),
-                    Text("  (", NULL),
-                    Text(mem_used_str, NULL),
-                    Text(" / ", NULL),
-                    Text(mem_total_str, NULL),
-                    Text(")", NULL),
+                    Text("  ", TEXT_DEFAULT),
+                    Text(mem_str, TEXT_DEFAULT),
+                    Text("  (", TEXT_DEFAULT),
+                    Text(mem_used_str, TEXT_DEFAULT),
+                    Text(" / ", TEXT_DEFAULT),
+                    Text(mem_total_str, TEXT_DEFAULT),
+                    Text(")", TEXT_DEFAULT),
                     NULL
                 ),
                 progress_bar(mem_usage, 40),
@@ -363,19 +363,19 @@ static component_t* app(void) {
         ),
 
         // Process count
-        Text(process_count_str, &(TextConfig){
+        Text(process_count_str, (TextConfig){
             .fg_color = COLOR_BRIGHT_BLACK
         }),
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
 
         // Process list header
-        Text("Top Processes (by CPU usage):", &(TextConfig){
+        Text("Top Processes (by CPU usage):", (TextConfig){
             .style = STYLE_BOLD
         }),
-        Text("PID     CPU    MEM    USER          NAME", &(TextConfig){
+        Text("PID     CPU    MEM    USER          NAME", (TextConfig){
             .fg_color = COLOR_BRIGHT_BLACK
         }),
-        Text("────────────────────────────────────────────────────────────────────", &(TextConfig){
+        Text("────────────────────────────────────────────────────────────────────", (TextConfig){
             .fg_color = COLOR_BRIGHT_BLACK
         }),
 
@@ -389,18 +389,18 @@ static component_t* app(void) {
             .on_select = on_process_select
         }),
 
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
         HStack(
-            Text("Auto-updates every 1s", &(TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
-            Text(" • ", NULL),
-            Text("Tab to focus, ↑↓ or wheel to scroll", &(TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
-            Text(" • ", NULL),
-            Text("Click to select", &(TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
-            Text(" • ", NULL),
-            Text("'q' quits", &(TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
+            Text("Auto-updates every 1s", (TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
+            Text(" • ", TEXT_DEFAULT),
+            Text("Tab to focus, ↑↓ or wheel to scroll", (TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
+            Text(" • ", TEXT_DEFAULT),
+            Text("Click to select", (TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
+            Text(" • ", TEXT_DEFAULT),
+            Text("'q' quits", (TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
             NULL
         ),
-        Text(status_message, &(TextConfig){
+        Text(status_message, (TextConfig){
             .fg_color = COLOR_BRIGHT_BLACK
         }),
         NULL

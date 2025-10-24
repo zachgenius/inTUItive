@@ -10,43 +10,43 @@ static app_state_t state = {0};
 
 static component_t* create_sample_content(void) {
     return VStack(
-        Text("Line 1", NULL),
-        Text("Line 2", NULL),
-        Text("Line 3", NULL),
-        Text("Line 4", NULL),
-        Text("Line 5", NULL),
-        Text("Line 6", NULL),
-        Text("Line 7", NULL),
-        Text("Line 8", NULL),
-        Text("Line 9", NULL),
-        Text("Line 10", NULL),
-        Text("Line 11", NULL),
-        Text("Line 12", NULL),
-        Text("Line 13", NULL),
-        Text("Line 14", NULL),
-        Text("Line 15", NULL),
+        Text("Line 1", TEXT_DEFAULT),
+        Text("Line 2", TEXT_DEFAULT),
+        Text("Line 3", TEXT_DEFAULT),
+        Text("Line 4", TEXT_DEFAULT),
+        Text("Line 5", TEXT_DEFAULT),
+        Text("Line 6", TEXT_DEFAULT),
+        Text("Line 7", TEXT_DEFAULT),
+        Text("Line 8", TEXT_DEFAULT),
+        Text("Line 9", TEXT_DEFAULT),
+        Text("Line 10", TEXT_DEFAULT),
+        Text("Line 11", TEXT_DEFAULT),
+        Text("Line 12", TEXT_DEFAULT),
+        Text("Line 13", TEXT_DEFAULT),
+        Text("Line 14", TEXT_DEFAULT),
+        Text("Line 15", TEXT_DEFAULT),
         NULL
     );
 }
 
 static component_t* app(void) {
     return VStack(
-        Text("=== ScrollBar Customization Demo ===", &(TextConfig){
+        Text("=== ScrollBar Customization Demo ===", (TextConfig){
             .fg_color = COLOR_BRIGHT_CYAN,
             .style = STYLE_BOLD
         }),
-        Text("", NULL),
-        Text("Tab between scroll views, use ↑↓ or mouse wheel to scroll", &(TextConfig){
+        Text("", TEXT_DEFAULT),
+        Text("Tab between scroll views, use ↑↓ or mouse wheel to scroll", (TextConfig){
             .fg_color = COLOR_BRIGHT_YELLOW
         }),
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
 
         // Default style
         HStack(
             VStack(
-                Text("Default Style:", &(TextConfig){ .style = STYLE_BOLD }),
-                Text("█ / ▓ / │ + arrows", NULL),
-                Text("", NULL),
+                Text("Default Style:", (TextConfig){ .style = STYLE_BOLD }),
+                Text("█ / ▓ / │ + arrows", TEXT_DEFAULT),
+                Text("", TEXT_DEFAULT),
                 ScrollView(create_sample_content(), &state.scroll1, (ScrollConfig){
                     .max_height = 8,
                     .show_indicators = true,
@@ -54,13 +54,13 @@ static component_t* app(void) {
                 }),
                 NULL
             ),
-            Text("    ", NULL),
+            Text("    ", TEXT_DEFAULT),
 
             // Square style
             VStack(
-                Text("Square Style:", &(TextConfig){ .style = STYLE_BOLD }),
-                Text("■ / □ / ┆ no arrows", NULL),
-                Text("", NULL),
+                Text("Square Style:", (TextConfig){ .style = STYLE_BOLD }),
+                Text("■ / □ / ┆ no arrows", TEXT_DEFAULT),
+                Text("", TEXT_DEFAULT),
                 ScrollView(create_sample_content(), &state.scroll2, (ScrollConfig){
                     .max_height = 8,
                     .show_indicators = true,
@@ -71,13 +71,13 @@ static component_t* app(void) {
                 }),
                 NULL
             ),
-            Text("    ", NULL),
+            Text("    ", TEXT_DEFAULT),
 
             // Circle style
             VStack(
-                Text("Circle Style:", &(TextConfig){ .style = STYLE_BOLD }),
-                Text("● / ○ / ┊ + arrows", NULL),
-                Text("", NULL),
+                Text("Circle Style:", (TextConfig){ .style = STYLE_BOLD }),
+                Text("● / ○ / ┊ + arrows", TEXT_DEFAULT),
+                Text("", TEXT_DEFAULT),
                 ScrollView(create_sample_content(), &state.scroll3, (ScrollConfig){
                     .max_height = 8,
                     .show_indicators = true,
@@ -90,20 +90,20 @@ static component_t* app(void) {
             ),
             NULL
         ),
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
 
-        Text("Other options you can try:", NULL),
-        Text("  • thumb_focused: █ ■ ● ◆ ▮ ▪ ◼", &(TextConfig){
+        Text("Other options you can try:", TEXT_DEFAULT),
+        Text("  • thumb_focused: █ ■ ● ◆ ▮ ▪ ◼", (TextConfig){
             .fg_color = COLOR_BRIGHT_GREEN
         }),
-        Text("  • thumb_unfocused: ▓ □ ○ ◇ ▯ ▫ ◻", &(TextConfig){
+        Text("  • thumb_unfocused: ▓ □ ○ ◇ ▯ ▫ ◻", (TextConfig){
             .fg_color = COLOR_BRIGHT_GREEN
         }),
-        Text("  • track_char: │ ┆ ┊ ╎ ╏ ║ |", &(TextConfig){
+        Text("  • track_char: │ ┆ ┊ ╎ ╏ ║ |", (TextConfig){
             .fg_color = COLOR_BRIGHT_GREEN
         }),
-        Text("", NULL),
-        Text("Press 'q' to quit", &(TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
+        Text("", TEXT_DEFAULT),
+        Text("Press 'q' to quit", (TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
         NULL
     );
 }

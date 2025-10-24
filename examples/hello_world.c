@@ -8,13 +8,13 @@
 
 component_t* app(void) {
     return VStack(
-        Text("Hello, inTUItive!", NULL),
-        Text("Welcome to declarative TUI", NULL),
-        Text("", NULL),
+        Text("Hello, inTUItive!", TEXT_DEFAULT),
+        Text("Welcome to declarative TUI", TEXT_DEFAULT),
+        Text("", TEXT_DEFAULT),
         HStack(
-            Text("[", NULL),
-            Text("Press 'q' to quit", NULL),
-            Text("]", NULL),
+            Text("[", TEXT_DEFAULT),
+            Text("Press 'q' to quit", TEXT_DEFAULT),
+            Text("]", TEXT_DEFAULT),
             NULL
         ),
         NULL

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-component_t* Text(const char* content, TextConfig* config) {
+component_t* Text(const char* content, TextConfig config) {
     if (!content) {
         return NULL;
     }
@@ -28,16 +28,10 @@ component_t* Text(const char* content, TextConfig* config) {
 
     component_set_data(component, data);
 
-    // Apply styling from config (use defaults if config is NULL)
-    if (config) {
-        component->fg_color = config->fg_color;
-        component->bg_color = config->bg_color;
-        component->style = config->style;
-    } else {
-        component->fg_color = COLOR_DEFAULT;
-        component->bg_color = COLOR_DEFAULT;
-        component->style = STYLE_NONE;
-    }
+    // Apply styling from config (zero values are treated as defaults)
+    component->fg_color = config.fg_color;
+    component->bg_color = config.bg_color;
+    component->style = config.style;
 
     return component;
 }

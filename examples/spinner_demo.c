@@ -27,17 +27,17 @@ static void decrement_progress(void) {
 
 static component_t* app(void) {
     return VStack(
-        Text("=== SPINNER DEMO ===", &(TextConfig){
+        Text("=== SPINNER DEMO ===", (TextConfig){
             .fg_color = COLOR_BRIGHT_CYAN,
             .style = STYLE_BOLD
         }),
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
 
-        Text("Basic Spinners:", NULL),
-        Text("", NULL),
+        Text("Basic Spinners:", TEXT_DEFAULT),
+        Text("", TEXT_DEFAULT),
 
         HStack(
-            Text("Braille:  ", NULL),
+            Text("Braille:  ", TEXT_DEFAULT),
             Spinner((SpinnerConfig){
                 .style = SPINNER_BRAILLE,
                 .speed = 80,
@@ -47,7 +47,7 @@ static component_t* app(void) {
         ),
 
         HStack(
-            Text("Classic:  ", NULL),
+            Text("Classic:  ", TEXT_DEFAULT),
             Spinner((SpinnerConfig){
                 .style = SPINNER_CLASSIC,
                 .speed = 100,
@@ -57,7 +57,7 @@ static component_t* app(void) {
         ),
 
         HStack(
-            Text("Dots:     ", NULL),
+            Text("Dots:     ", TEXT_DEFAULT),
             Spinner((SpinnerConfig){
                 .style = SPINNER_DOTS,
                 .speed = 80,
@@ -67,7 +67,7 @@ static component_t* app(void) {
         ),
 
         HStack(
-            Text("Box:      ", NULL),
+            Text("Box:      ", TEXT_DEFAULT),
             Spinner((SpinnerConfig){
                 .style = SPINNER_BOX,
                 .speed = 120,
@@ -77,7 +77,7 @@ static component_t* app(void) {
         ),
 
         HStack(
-            Text("Arrow:    ", NULL),
+            Text("Arrow:    ", TEXT_DEFAULT),
             Spinner((SpinnerConfig){
                 .style = SPINNER_ARROW,
                 .speed = 100,
@@ -86,9 +86,9 @@ static component_t* app(void) {
             NULL
         ),
 
-        Text("", NULL),
-        Text("Spinners with Text:", NULL),
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
+        Text("Spinners with Text:", TEXT_DEFAULT),
+        Text("", TEXT_DEFAULT),
 
         Spinner((SpinnerConfig){
             .style = SPINNER_BRAILLE,
@@ -102,9 +102,9 @@ static component_t* app(void) {
             .text = "Processing..."
         }),
 
-        Text("", NULL),
-        Text("Spinner with Progress:", NULL),
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
+        Text("Spinner with Progress:", TEXT_DEFAULT),
+        Text("", TEXT_DEFAULT),
 
         Spinner((SpinnerConfig){
             .style = SPINNER_BRAILLE,
@@ -113,16 +113,16 @@ static component_t* app(void) {
             .progress = &state.progress
         }),
 
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
         HStack(
             Button("-5%", decrement_progress),
-            Text("  ", NULL),
+            Text("  ", TEXT_DEFAULT),
             Button("+5%", increment_progress),
             NULL
         ),
 
-        Text("", NULL),
-        Text("Tab to focus buttons, +/- to change progress, q to quit", &(TextConfig){
+        Text("", TEXT_DEFAULT),
+        Text("Tab to focus buttons, +/- to change progress, q to quit", (TextConfig){
             .fg_color = COLOR_BRIGHT_BLACK
         }),
         NULL

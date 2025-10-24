@@ -120,7 +120,7 @@ bool tui_get_terminal_size(int* width, int* height);
 /* ========== Components ========== */
 
 /**
- * Text configuration (optional styling)
+ * Text configuration (styling)
  * Unspecified fields default to: fg_color=COLOR_DEFAULT, bg_color=COLOR_DEFAULT, style=STYLE_NONE
  */
 typedef struct {
@@ -130,24 +130,30 @@ typedef struct {
 } TextConfig;
 
 /**
+ * Default text configuration (no styling)
+ * Use this for plain text without any colors or styles
+ */
+#define TEXT_DEFAULT ((TextConfig){})
+
+/**
  * Create a Text component
  * First parameter is the text content (required)
- * Second parameter is optional styling config (pass NULL for default styling)
+ * Second parameter is the styling config (use TEXT_DEFAULT for no styling)
  *
  * Example (simple):
- *   Text("Hello", NULL)
+ *   Text("Hello", TEXT_DEFAULT)
  *
  * Example (colored):
- *   Text("Error", &(TextConfig){ .fg_color = COLOR_RED })
+ *   Text("Error", (TextConfig){ .fg_color = COLOR_RED })
  *
  * Example (fully styled):
- *   Text("Important!", &(TextConfig){
+ *   Text("Important!", (TextConfig){
  *       .fg_color = COLOR_BRIGHT_RED,
  *       .bg_color = COLOR_BLACK,
  *       .style = STYLE_BOLD | STYLE_UNDERLINE
  *   })
  */
-component_t* Text(const char* content, TextConfig* config);
+component_t* Text(const char* content, TextConfig config);
 
 /**
  * Create a VStack (vertical stack) component
@@ -413,11 +419,11 @@ component_t* Spinner(SpinnerConfig config);
 /**
  * Common text style shortcuts
  */
-#define ErrorText(text) Text(text, &(TextConfig){ .fg_color = COLOR_BRIGHT_RED, .style = STYLE_BOLD })
-#define SuccessText(text) Text(text, &(TextConfig){ .fg_color = COLOR_BRIGHT_GREEN, .style = STYLE_BOLD })
-#define WarningText(text) Text(text, &(TextConfig){ .fg_color = COLOR_BRIGHT_YELLOW, .style = STYLE_BOLD })
-#define InfoText(text) Text(text, &(TextConfig){ .fg_color = COLOR_BRIGHT_CYAN })
-#define MutedText(text) Text(text, &(TextConfig){ .fg_color = COLOR_BRIGHT_BLACK })
+#define ErrorText(text) Text(text, (TextConfig){ .fg_color = COLOR_BRIGHT_RED, .style = STYLE_BOLD })
+#define SuccessText(text) Text(text, (TextConfig){ .fg_color = COLOR_BRIGHT_GREEN, .style = STYLE_BOLD })
+#define WarningText(text) Text(text, (TextConfig){ .fg_color = COLOR_BRIGHT_YELLOW, .style = STYLE_BOLD })
+#define InfoText(text) Text(text, (TextConfig){ .fg_color = COLOR_BRIGHT_CYAN })
+#define MutedText(text) Text(text, (TextConfig){ .fg_color = COLOR_BRIGHT_BLACK })
 
 /**
  * Config struct initializers with common defaults

@@ -73,31 +73,31 @@ static component_t* app(void) {
              state.list_scroll);
 
     return VStack(
-        Text("=== Mouse Support Demo ===", &(TextConfig){
+        Text("=== Mouse Support Demo ===", (TextConfig){
             .fg_color = COLOR_BRIGHT_CYAN,
             .style = STYLE_BOLD
         }),
-        Text("", NULL),
-        Text("🖱️  This demo showcases mouse interaction!", &(TextConfig){
+        Text("", TEXT_DEFAULT),
+        Text("🖱️  This demo showcases mouse interaction!", (TextConfig){
             .fg_color = COLOR_BRIGHT_YELLOW
         }),
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
 
-        Text("Try clicking the buttons:", NULL),
+        Text("Try clicking the buttons:", TEXT_DEFAULT),
         HStack(
             Button("Click Me!", button_clicked),
-            Text("  ", NULL),
+            Text("  ", TEXT_DEFAULT),
             Button("Reset Counter", reset_counter),
             NULL
         ),
-        Text(count_str, NULL),
-        Text("", NULL),
+        Text(count_str, TEXT_DEFAULT),
+        Text("", TEXT_DEFAULT),
 
-        Text("Try clicking items in the list:", NULL),
-        Text("(Press Tab to focus, then use ↑↓ arrow keys or mouse wheel ▲▼)", &(TextConfig){
+        Text("Try clicking items in the list:", TEXT_DEFAULT),
+        Text("(Press Tab to focus, then use ↑↓ arrow keys or mouse wheel ▲▼)", (TextConfig){
             .fg_color = COLOR_BRIGHT_BLACK
         }),
-        Text(scroll_info, &(TextConfig){ .fg_color = COLOR_YELLOW }),
+        Text(scroll_info, (TextConfig){ .fg_color = COLOR_YELLOW }),
         List((ListConfig){
             .items = items,
             .count = 20,
@@ -106,11 +106,11 @@ static component_t* app(void) {
             .selected_index = &state.selected_item,
             .on_select = on_item_select
         }),
-        Text("", NULL),
+        Text("", TEXT_DEFAULT),
 
-        Text(state.message, &(TextConfig){ .fg_color = COLOR_BRIGHT_GREEN }),
-        Text("", NULL),
-        Text("Press 'q' to quit", &(TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
+        Text(state.message, (TextConfig){ .fg_color = COLOR_BRIGHT_GREEN }),
+        Text("", TEXT_DEFAULT),
+        Text("Press 'q' to quit", (TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
         NULL
     );
 }
