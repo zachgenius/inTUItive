@@ -79,7 +79,7 @@ typedef struct {
 typedef struct {
     char** items;
     int item_count;
-    int scroll_offset;
+    int* scroll_offset;           // Pointer to external scroll state
     int max_visible_items;
     int* selected_index;         // Pointer to external selected index (optional)
     void (*on_select)(int index); // Callback when item selected (optional)

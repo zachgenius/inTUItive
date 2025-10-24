@@ -40,7 +40,7 @@ component_t* List(ListConfig config) {
     }
 
     data->item_count = config.count;
-    data->scroll_offset = 0;
+    data->scroll_offset = config.scroll_offset;
     data->max_visible_items = config.max_visible > 0 ? config.max_visible : 10;
     data->selected_index = config.selected_index;
     data->on_select = config.on_select;

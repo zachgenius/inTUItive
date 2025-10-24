@@ -151,7 +151,7 @@ void render_component(struct component_t* component) {
             list_data_t* data = (list_data_t*)component->data;
             if (data && data->items) {
                 int visible_count = component->height;
-                int start_index = data->scroll_offset;
+                int start_index = data->scroll_offset ? *data->scroll_offset : 0;
                 int end_index = start_index + visible_count;
 
                 if (end_index > data->item_count) {

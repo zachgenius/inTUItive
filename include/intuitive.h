@@ -91,6 +91,13 @@ void tui_run(void);
  */
 void tui_request_render(void);
 
+/**
+ * Get the current terminal dimensions
+ * Returns true if successful, false otherwise
+ * Width and height are measured in character cells
+ */
+bool tui_get_terminal_size(int* width, int* height);
+
 /* ========== Components ========== */
 
 /**
@@ -159,6 +166,7 @@ typedef struct {
     const char** items;          // Array of item strings
     int count;                   // Number of items
     int max_visible;             // Maximum visible items (default: 10)
+    int* scroll_offset;          // Pointer to scroll position (external state, optional)
     int* selected_index;         // Pointer to selected index (external state, optional)
     void (*on_select)(int index); // Callback when Enter pressed on item (optional)
 } ListConfig;
@@ -307,8 +315,8 @@ component_t* Underline(component_t* comp);
  * Config struct initializers with common defaults
  */
 #define INPUT(buffer, size) (InputConfig){ .buffer = buffer, .size = size }
-#define LIST(items, count) (ListConfig){ .items = items, .count = count, .max_visible = 10, .selected_index = NULL, .on_select = NULL }
-#define LIST_SELECTABLE(items, count, selected, callback) (ListConfig){ .items = items, .count = count, .max_visible = 10, .selected_index = selected, .on_select = callback }
+#define LIST(items, count) (ListConfig){ .items = items, .count = count, .max_visible = 10, .scroll_offset = NULL, .selected_index = NULL, .on_select = NULL }
+#define LIST_SELECTABLE(items, count, scroll, selected, callback) (ListConfig){ .items = items, .count = count, .max_visible = 10, .scroll_offset = scroll, .selected_index = selected, .on_select = callback }
 #define MODAL(is_open, title, content, on_close) (ModalConfig){ .is_open = is_open, .title = title, .content = content, .on_close = on_close }
 #define SCROLLVIEW(height, show_indicators) (ScrollConfig){ .max_height = height, .show_indicators = show_indicators }
 #define TABLE(headers, rows, cols, rows_count, borders) (TableConfig){ .headers = headers, .rows = rows, .column_count = cols, .row_count = rows_count, .show_borders = borders }

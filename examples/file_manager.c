@@ -18,7 +18,7 @@ typedef struct {
     char* file_list[MAX_FILES];
     int file_count;
     int selected_index;
-    int scroll_offset;
+    int list_scroll;
     bool show_error;
     char error_msg[256];
 } fm_state_t;
@@ -65,6 +65,7 @@ static int compare_files(const void* a, const void* b) {
 static void load_directory(const char* path) {
     free_file_list();
     state.selected_index = 0;
+    state.list_scroll = 0;
 
     DIR* dir = opendir(path);
     if (!dir) {
@@ -164,6 +165,16 @@ static component_t* app(void) {
     component_t* items[MAX_FILES + 20];
     int idx = 0;
 
+    // Calculate max visible items based on terminal height
+    // Fixed UI elements take ~15 lines (header, path, controls, etc.)
+    // Leave some margin to prevent bottom truncation
+    int term_width, term_height;
+    int max_visible = 10; // Default fallback
+    if (tui_get_terminal_size(&term_width, &term_height)) {
+        max_visible = term_height - 15; // Reserve space for fixed UI
+        if (max_visible < 5) max_visible = 5; // Minimum 5 visible items
+    }
+
     // Header
     items[idx++] = Bold(FgColor(Text("=== File Manager ==="), COLOR_BRIGHT_CYAN));
     items[idx++] = Text("");
@@ -189,7 +200,8 @@ static component_t* app(void) {
         items[idx++] = List((ListConfig){
             .items = (const char**)state.file_list,
             .count = state.file_count,
-            .max_visible = 15,
+            .max_visible = max_visible,
+            .scroll_offset = &state.list_scroll,
             .selected_index = &state.selected_index,
             .on_select = on_select_file
         });

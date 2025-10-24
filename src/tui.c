@@ -47,6 +47,20 @@ void tui_request_render(void) {
     tui_state.needs_render = true;
 }
 
+bool tui_get_terminal_size(int* width, int* height) {
+    if (!width || !height) {
+        return false;
+    }
+
+    if (term_get_size(&tui_state.term_width, &tui_state.term_height)) {
+        *width = tui_state.term_width;
+        *height = tui_state.term_height;
+        return true;
+    }
+
+    return false;
+}
+
 void tui_set_cursor(int x, int y) {
     tui_state.show_cursor = true;
     tui_state.cursor_x = x;
@@ -158,8 +172,8 @@ static bool handle_input_event(struct component_t* focused, event_t* event) {
                 (*data->selected_index)--;
 
                 // Auto-scroll if selection moves off screen
-                if (*data->selected_index < data->scroll_offset) {
-                    data->scroll_offset = *data->selected_index;
+                if (data->scroll_offset && *data->selected_index < *data->scroll_offset) {
+                    *data->scroll_offset = *data->selected_index;
                 }
                 return true;
             }
@@ -168,9 +182,11 @@ static bool handle_input_event(struct component_t* focused, event_t* event) {
                 (*data->selected_index)++;
 
                 // Auto-scroll if selection moves off screen
-                int visible_end = data->scroll_offset + data->max_visible_items;
-                if (*data->selected_index >= visible_end) {
-                    data->scroll_offset = *data->selected_index - data->max_visible_items + 1;
+                if (data->scroll_offset) {
+                    int visible_end = *data->scroll_offset + data->max_visible_items;
+                    if (*data->selected_index >= visible_end) {
+                        *data->scroll_offset = *data->selected_index - data->max_visible_items + 1;
+                    }
                 }
                 return true;
             }
