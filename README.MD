@@ -161,12 +161,22 @@ if (tui_get_terminal_size(&width, &height)) {
 - ✅ Dynamic terminal sizing API
 - ✅ **Milestone**: File Manager app
 
-### 📋 Phase 4: Future Ideas
+### ✅ Phase 4: Modern UX (COMPLETE!)
+- ✅ Full mouse support (click, scroll wheel, hover)
+- ✅ Cross-platform scroll detection (macOS + Linux)
+- ✅ Focus-follows-mouse
+- ✅ Advanced layout system (alignment, spacing, padding)
+- ✅ Component diffing/reconciliation for performance
+- ✅ Customizable scroll bars
+- ✅ **Milestone**: System Monitor app with real-time updates
+
+### 📋 Phase 5: Future Ideas
 - Animations and transitions
-- Mouse support
+- Spinner/loading indicators
+- Smooth scrolling
+- Toast notifications
+- Modal slide-in transitions
 - Custom key bindings
-- Component diffing/reconciliation
-- Performance optimizations
 
 ## Examples
 
