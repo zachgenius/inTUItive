@@ -24,9 +24,9 @@ Here's a real "Hello World" app in inTUItive (yes, it actually works now!):
 
 component_t* app(void) {
     return VStack(
-        Text("Hello, inTUItive!"),
+        Text("Hello, inTUItive!", TEXT_DEFAULT),
         Button("Click me", handle_click),
-        Text("Simple and clean"),
+        Text("Simple and clean", TEXT_DEFAULT),
         NULL  // NULL-terminated
     );
 }
@@ -47,7 +47,7 @@ That's it! No classes, no inheritance, no boilerplate.
 - **Simple State**: Global state with automatic updates
 - **Layout System**: VStack, HStack with alignment, spacing, and padding
 - **Interactive Elements**: Buttons, inputs, lists, tables, scrollviews
-- **Modern Styling**: Colors, bold, underline - all chainable!
+- **Modern Styling**: Colors, bold, underline via config structs
 - **Config Structs**: SwiftUI/Compose-style API (named parameters, extensible)
 - **Mouse Support**: Full mouse interaction (click, scroll, hover)
 - **Visual Feedback**: Spinners, toast notifications, customizable scroll bars
@@ -71,25 +71,30 @@ All these components are working now! The API evolved to be more SwiftUI/Compose
 
 ```c
 // Layout components
-VStack(Text("A"), Text("B"), NULL)  // Vertical arrangement (NULL-terminated)
-HStack(Text("A"), Text("B"), NULL)  // Horizontal arrangement
+VStack(Text("A", TEXT_DEFAULT), Text("B", TEXT_DEFAULT), NULL)  // Vertical arrangement (NULL-terminated)
+HStack(Text("A", TEXT_DEFAULT), Text("B", TEXT_DEFAULT), NULL)  // Horizontal arrangement
 VStackArray(children)               // From array
 
 // UI components
-Text("Hello")                       // Display text
+Text("Hello", TEXT_DEFAULT)         // Simple text (default styling)
 Button("OK", callback)              // Clickable button
+
+// Text with styling (config-based)
+Text("Error!", (TextConfig){ .fg_color = COLOR_RED, .style = STYLE_BOLD })
+Text("Warning", (TextConfig){ .fg_color = COLOR_YELLOW, .bg_color = COLOR_BLACK })
+
+// Or use convenience macros
+ErrorText("Error!")                 // Shortcut for red bold text
+WarningText("Warning")              // Shortcut for yellow bold text
 
 // Config-based components (inspired by SwiftUI)
 Input((InputConfig){ .buffer = buf, .size = 256 })
 List((ListConfig){ .items = items, .count = 5, .max_visible = 10, .scroll_offset = &scroll, .selected_index = &idx, .on_select = callback })
-Modal((ModalConfig){ .is_open = &open, .title = "Alert", .content = Text("Hi!"), .on_close = close })
+Modal((ModalConfig){ .is_open = &open, .title = "Alert", .content = Text("Hi!", TEXT_DEFAULT), .on_close = close })
 ScrollView(content, &scroll, (ScrollConfig){ .max_height = 10, .show_indicators = true })
 Table((TableConfig){ .headers = headers, .rows = rows, .column_count = 3, .row_count = 5, .show_borders = true })
 Spinner((SpinnerConfig){ .style = SPINNER_DOTS, .speed = 80, .text = "Loading...", .progress = &progress })
 Toast((ToastConfig){ .message = "Saved!", .is_visible = &visible, .position = TOAST_BOTTOM, .on_close = callback })
-
-// Style modifiers (chainable!)
-Bold(FgColor(Text("Error!"), COLOR_RED))
 ```
 
 ### Simple State
@@ -116,10 +121,10 @@ component_t* counter_app(void) {
     snprintf(count_str, sizeof(count_str), "%d", state.counter);
 
     return VStack(
-        Text(state.title),
+        Text(state.title, TEXT_DEFAULT),
         HStack(
             Button("-", decrement),
-            Text(count_str),
+            Text(count_str, TEXT_DEFAULT),
             Button("+", increment),
             NULL
         ),
