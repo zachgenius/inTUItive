@@ -70,7 +70,11 @@ component_t* app(void) {
         Text(""),
 
         FgColor(Text("Recent Events:"), COLOR_BRIGHT_YELLOW),
-        List(recent_events, 5),
+        List((ListConfig){
+            .items = recent_events,
+            .count = 5,
+            .max_visible = 10
+        }),
         Text(""),
 
         HStack(
@@ -100,7 +104,12 @@ component_t* app(void) {
 
         return VStack(
             main_ui,
-            Modal(&state.show_help, "Help", help_content, close_modal),
+            Modal((ModalConfig){
+                .is_open = &state.show_help,
+                .title = "Help",
+                .content = help_content,
+                .on_close = close_modal
+            }),
             NULL
         );
     }
@@ -126,7 +135,12 @@ component_t* app(void) {
 
         return VStack(
             main_ui,
-            Modal(&state.show_about, "About", about_content, close_modal),
+            Modal((ModalConfig){
+                .is_open = &state.show_about,
+                .title = "About",
+                .content = about_content,
+                .on_close = close_modal
+            }),
             NULL
         );
     }

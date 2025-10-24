@@ -41,7 +41,10 @@ component_t* app(void) {
 
     items[idx++] = HStack(
         Text("Add: "),
-        Input(state.input_buffer, sizeof(state.input_buffer)),
+        Input((InputConfig){
+            .buffer = state.input_buffer,
+            .size = sizeof(state.input_buffer)
+        }),
         Text(" "),
         Button("Add", add_todo),
         NULL

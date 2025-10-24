@@ -135,23 +135,50 @@ component_t* VStackArray(component_t** children);
 component_t* Button(const char* label, void (*on_click)(void));
 
 /**
+ * Input configuration
+ */
+typedef struct {
+    char* buffer;       // Text buffer to edit
+    size_t size;        // Size of the buffer
+} InputConfig;
+
+/**
  * Create an Input component
  * Text input field that edits the provided buffer
  * Focusable via Tab key
  * Supports typing, backspace, and arrow key navigation
  *
- * Example: Input(my_buffer, sizeof(my_buffer))
+ * Example: Input((InputConfig){ .buffer = my_buffer, .size = sizeof(my_buffer) })
  */
-component_t* Input(char* buffer, size_t size);
+component_t* Input(InputConfig config);
+
+/**
+ * List configuration
+ */
+typedef struct {
+    const char** items;      // Array of item strings
+    int count;               // Number of items
+    int max_visible;         // Maximum visible items (default: 10)
+} ListConfig;
 
 /**
  * Create a List component
  * Displays a scrollable list of items
- * Shows up to 10 items at a time, with automatic scrolling
+ * Shows up to max_visible items at a time, with automatic scrolling
  *
- * Example: List(items, 5) where items is const char*[]
+ * Example: List((ListConfig){ .items = items, .count = 5, .max_visible = 10 })
  */
-component_t* List(const char** items, int count);
+component_t* List(ListConfig config);
+
+/**
+ * Modal configuration
+ */
+typedef struct {
+    bool* is_open;           // Pointer to open/close state
+    const char* title;       // Optional title (can be NULL)
+    component_t* content;    // Content to display
+    void (*on_close)(void);  // Callback when modal is closed
+} ModalConfig;
 
 /**
  * Create a Modal dialog component
@@ -159,9 +186,22 @@ component_t* List(const char** items, int count);
  * Only renders when *is_open is true
  * Call on_close() callback to handle dismissal (e.g., pressing ESC)
  *
- * Example: Modal(&show_modal, "Alert", Text("Hello!"), close_modal)
+ * Example: Modal((ModalConfig){
+ *     .is_open = &show_modal,
+ *     .title = "Alert",
+ *     .content = Text("Hello!"),
+ *     .on_close = close_modal
+ * })
  */
-component_t* Modal(bool* is_open, const char* title, component_t* content, void (*on_close)(void));
+component_t* Modal(ModalConfig config);
+
+/**
+ * ScrollView configuration
+ */
+typedef struct {
+    int max_height;          // Maximum visible height of the viewport
+    bool show_indicators;    // Show ▲/▼ scroll indicators (default: true)
+} ScrollConfig;
 
 /**
  * Create a ScrollView component
@@ -171,18 +211,12 @@ component_t* Modal(bool* is_open, const char* title, component_t* content, void 
  *
  * Example:
  *   int scroll = 0;
- *   ScrollView(VStack(...long content..., NULL), &scroll, 10)
+ *   ScrollView(VStack(...long content..., NULL), &scroll, (ScrollConfig){
+ *       .max_height = 10,
+ *       .show_indicators = true
+ *   })
  */
-component_t* ScrollView(component_t* content, int* scroll_offset, int max_height);
-
-/**
- * Enable or disable scroll indicators for a ScrollView
- * Shows ▲/▼ arrows to indicate scrollable content
- * Returns the same component for chaining
- *
- * Example: ScrollIndicators(ScrollView(...), false)
- */
-component_t* ScrollIndicators(component_t* comp, bool enabled);
+component_t* ScrollView(component_t* content, int* scroll_offset, ScrollConfig config);
 
 /* ========== Style Modifiers ========== */
 

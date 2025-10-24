@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-component_t* Modal(bool* is_open, const char* title, component_t* content, void (*on_close)(void)) {
-    if (!is_open || !content) {
+component_t* Modal(ModalConfig config) {
+    if (!config.is_open || !config.content) {
         return NULL;
     }
 
@@ -19,10 +19,10 @@ component_t* Modal(bool* is_open, const char* title, component_t* content, void 
         return NULL;
     }
 
-    data->is_open = is_open;
-    data->title = title ? strdup(title) : NULL;
-    data->content = content;
-    data->on_close = on_close;
+    data->is_open = config.is_open;
+    data->title = config.title ? strdup(config.title) : NULL;
+    data->content = config.content;
+    data->on_close = config.on_close;
 
     component_set_data(modal, data);
     return modal;

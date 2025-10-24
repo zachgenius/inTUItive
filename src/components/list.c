@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-component_t* List(const char** items, int count) {
-    if (!items || count <= 0) {
+component_t* List(ListConfig config) {
+    if (!config.items || config.count <= 0) {
         return NULL;
     }
 
@@ -19,15 +19,15 @@ component_t* List(const char** items, int count) {
         return NULL;
     }
 
-    data->items = calloc(count, sizeof(char*));
+    data->items = calloc(config.count, sizeof(char*));
     if (!data->items) {
         free(data);
         component_free(list);
         return NULL;
     }
 
-    for (int i = 0; i < count; i++) {
-        data->items[i] = strdup(items[i]);
+    for (int i = 0; i < config.count; i++) {
+        data->items[i] = strdup(config.items[i]);
         if (!data->items[i]) {
             for (int j = 0; j < i; j++) {
                 free(data->items[j]);
@@ -39,9 +39,9 @@ component_t* List(const char** items, int count) {
         }
     }
 
-    data->item_count = count;
+    data->item_count = config.count;
     data->scroll_offset = 0;
-    data->max_visible_items = 10;
+    data->max_visible_items = config.max_visible > 0 ? config.max_visible : 10;
 
     component_set_data(list, data);
     return list;

@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-component_t* Input(char* buffer, size_t size) {
-    if (!buffer || size == 0) {
+component_t* Input(InputConfig config) {
+    if (!config.buffer || config.size == 0) {
         return NULL;
     }
 
@@ -19,9 +19,9 @@ component_t* Input(char* buffer, size_t size) {
         return NULL;
     }
 
-    data->buffer = buffer;
-    data->buffer_size = size;
-    data->cursor_pos = strlen(buffer);
+    data->buffer = config.buffer;
+    data->buffer_size = config.size;
+    data->cursor_pos = strlen(config.buffer);
     data->scroll_offset = 0;
 
     component_set_data(component, data);

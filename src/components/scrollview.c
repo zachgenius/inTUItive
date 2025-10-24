@@ -2,8 +2,8 @@
 #include "internal/component.h"
 #include <stdlib.h>
 
-component_t* ScrollView(component_t* content, int* scroll_offset, int max_height) {
-    if (!content || !scroll_offset || max_height <= 0) {
+component_t* ScrollView(component_t* content, int* scroll_offset, ScrollConfig config) {
+    if (!content || !scroll_offset || config.max_height <= 0) {
         return NULL;
     }
 
@@ -20,8 +20,8 @@ component_t* ScrollView(component_t* content, int* scroll_offset, int max_height
 
     data->content = content;
     data->scroll_offset = scroll_offset;
-    data->max_visible_height = max_height;
-    data->show_indicators = true;  // Show indicators by default
+    data->max_visible_height = config.max_height;
+    data->show_indicators = config.show_indicators;
 
     component_set_data(scrollview, data);
 
@@ -29,17 +29,4 @@ component_t* ScrollView(component_t* content, int* scroll_offset, int max_height
     scrollview->focusable = true;
 
     return scrollview;
-}
-
-component_t* ScrollIndicators(component_t* comp, bool enabled) {
-    if (!comp || comp->type != COMPONENT_SCROLLVIEW) {
-        return comp;
-    }
-
-    scrollview_data_t* data = (scrollview_data_t*)comp->data;
-    if (data) {
-        data->show_indicators = enabled;
-    }
-
-    return comp;
 }

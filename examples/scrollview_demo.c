@@ -27,7 +27,10 @@ component_t* app(void) {
         Text(""),
         Text(debug),
         Text("Content (showing 10 of 20 lines):"),
-        ScrollView(long_content, &state.scroll_pos, 10),
+        ScrollView(long_content, &state.scroll_pos, (ScrollConfig){
+            .max_height = 10,
+            .show_indicators = true
+        }),
         Text(""),
         FgColor(Text("Controls:"), COLOR_BRIGHT_GREEN),
         Text("  Tab - Focus scrollview"),
