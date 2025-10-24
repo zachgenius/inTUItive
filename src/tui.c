@@ -357,10 +357,7 @@ void tui_run(void) {
                 }
             }
 
-            // Free old trees and update state
-            if (tui_state.root) {
-                component_free(tui_state.root);
-            }
+            // Free the oldest tree (prev_root from 2 frames ago)
             if (tui_state.prev_root) {
                 component_free(tui_state.prev_root);
             }
