@@ -9,12 +9,12 @@ set(INTUITIVE_TUI_SOURCES
     events.c
     focus.c
     diff.c
+    animation.c
     components/text.c
     components/vstack.c
     components/hstack.c
     components/button.c
     components/input.c
-    components/style.c
     components/list.c
     components/modal.c
     components/scrollview.c
@@ -22,6 +22,7 @@ set(INTUITIVE_TUI_SOURCES
     components/aligned_stack.c
     components/padding.c
     components/spacer.c
+    components/spinner.c
 )
 
 # Create both shared and static libraries

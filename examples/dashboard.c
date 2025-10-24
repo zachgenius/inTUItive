@@ -41,11 +41,11 @@ component_t* stat_bar(const char* label, int percentage, color_t color) {
     snprintf(percent_text, sizeof(percent_text), "%3d%%", percentage);
 
     return HStack(
-        Text(label),
-        Text(": ["),
-        FgColor(Text(bar), color),
-        Text("] "),
-        Bold(Text(percent_text)),
+        Text(label, NULL),
+        Text(": [", NULL),
+        Text(bar, &(TextConfig){ .fg_color = color }),
+        Text("] ", NULL),
+        Text(percent_text, &(TextConfig){ .style = STYLE_BOLD }),
         NULL
     );
 }
@@ -60,45 +60,48 @@ component_t* app(void) {
     };
 
     component_t* main_ui = VStack(
-        Bold(FgColor(Text("=== System Dashboard ==="), COLOR_BRIGHT_CYAN)),
-        Text(""),
+        Text("=== System Dashboard ===", &(TextConfig){
+            .fg_color = COLOR_BRIGHT_CYAN,
+            .style = STYLE_BOLD
+        }),
+        Text("", NULL),
 
-        FgColor(Text("System Resources:"), COLOR_BRIGHT_YELLOW),
+        Text("System Resources:", &(TextConfig){ .fg_color = COLOR_BRIGHT_YELLOW }),
         stat_bar("CPU    ", state.cpu_usage, COLOR_GREEN),
         stat_bar("Memory ", state.memory_usage, COLOR_YELLOW),
         stat_bar("Disk   ", state.disk_usage, COLOR_RED),
-        Text(""),
+        Text("", NULL),
 
-        FgColor(Text("Recent Events:"), COLOR_BRIGHT_YELLOW),
+        Text("Recent Events:", &(TextConfig){ .fg_color = COLOR_BRIGHT_YELLOW }),
         List((ListConfig){
             .items = recent_events,
             .count = 5,
             .max_visible = 10
         }),
-        Text(""),
+        Text("", NULL),
 
         HStack(
             Button("Help", toggle_help),
-            Text("  "),
+            Text("  ", NULL),
             Button("About", toggle_about),
             NULL
         ),
-        Text(""),
-        Text("Press 'q' to quit"),
+        Text("", NULL),
+        Text("Press 'q' to quit", NULL),
         NULL
     );
 
     if (state.show_help) {
         component_t* help_content = VStack(
-            Text("Dashboard Help"),
-            Text(""),
-            FgColor(Text("Navigation:"), COLOR_BRIGHT_GREEN),
-            Text("  Tab - Switch between buttons"),
-            Text("  Enter - Activate button"),
-            Text("  Esc - Close modal"),
-            Text("  q - Quit application"),
-            Text(""),
-            Text("Press any key to close..."),
+            Text("Dashboard Help", NULL),
+            Text("", NULL),
+            Text("Navigation:", &(TextConfig){ .fg_color = COLOR_BRIGHT_GREEN }),
+            Text("  Tab - Switch between buttons", NULL),
+            Text("  Enter - Activate button", NULL),
+            Text("  Esc - Close modal", NULL),
+            Text("  q - Quit application", NULL),
+            Text("", NULL),
+            Text("Press any key to close...", NULL),
             NULL
         );
 
@@ -116,20 +119,25 @@ component_t* app(void) {
 
     if (state.show_about) {
         component_t* about_content = VStack(
-            Bold(FgColor(Text("inTUItive Framework"), COLOR_BRIGHT_CYAN)),
-            Text(""),
-            Text("Version: 0.2.0 (Phase 2)"),
-            Text(""),
-            FgColor(Text("Features:"), COLOR_BRIGHT_GREEN),
-            Text("  * Declarative UI"),
-            Text("  * Colors & Styling"),
-            Text("  * Interactive Components"),
-            Text("  * Modal Dialogs"),
-            Text("  * List Views"),
-            Text(""),
-            Underline(Text("github.com/yourusername/intuitive-tui")),
-            Text(""),
-            Text("Press any key to close..."),
+            Text("inTUItive Framework", &(TextConfig){
+                .fg_color = COLOR_BRIGHT_CYAN,
+                .style = STYLE_BOLD
+            }),
+            Text("", NULL),
+            Text("Version: 0.2.0 (Phase 2)", NULL),
+            Text("", NULL),
+            Text("Features:", &(TextConfig){ .fg_color = COLOR_BRIGHT_GREEN }),
+            Text("  * Declarative UI", NULL),
+            Text("  * Colors & Styling", NULL),
+            Text("  * Interactive Components", NULL),
+            Text("  * Modal Dialogs", NULL),
+            Text("  * List Views", NULL),
+            Text("", NULL),
+            Text("github.com/yourusername/intuitive-tui", &(TextConfig){
+                .style = STYLE_UNDERLINE
+            }),
+            Text("", NULL),
+            Text("Press any key to close...", NULL),
             NULL
         );
 

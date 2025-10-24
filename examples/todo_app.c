@@ -36,41 +36,41 @@ component_t* app(void) {
     component_t* items[MAX_TODOS + 20];
     int idx = 0;
 
-    items[idx++] = Text(header);
-    items[idx++] = Text("");
+    items[idx++] = Text(header, NULL);
+    items[idx++] = Text("", NULL);
 
     items[idx++] = HStack(
-        Text("Add: "),
+        Text("Add: ", NULL),
         Input((InputConfig){
             .buffer = state.input_buffer,
             .size = sizeof(state.input_buffer)
         }),
-        Text(" "),
+        Text(" ", NULL),
         Button("Add", add_todo),
         NULL
     );
 
-    items[idx++] = Text("");
+    items[idx++] = Text("", NULL);
 
     if (state.count > 0) {
-        items[idx++] = Text("Items:");
+        items[idx++] = Text("Items:", NULL);
         for (int i = 0; i < state.count; i++) {
             char item_text[TODO_LENGTH + 10];
             snprintf(item_text, sizeof(item_text), "  %d. %s", i + 1, state.items[i]);
-            items[idx++] = Text(item_text);
+            items[idx++] = Text(item_text, NULL);
         }
 
-        items[idx++] = Text("");
+        items[idx++] = Text("", NULL);
         items[idx++] = Button("Clear All", clear_all);
     } else {
-        items[idx++] = Text("No items yet. Add one above!");
+        items[idx++] = Text("No items yet. Add one above!", NULL);
     }
 
-    items[idx++] = Text("");
-    items[idx++] = Text("Controls:");
-    items[idx++] = Text("  Tab: Navigate between fields");
-    items[idx++] = Text("  Enter: Add item / Activate button");
-    items[idx++] = Text("  q: Quit");
+    items[idx++] = Text("", NULL);
+    items[idx++] = Text("Controls:", NULL);
+    items[idx++] = Text("  Tab: Navigate between fields", NULL);
+    items[idx++] = Text("  Enter: Add item / Activate button", NULL);
+    items[idx++] = Text("  q: Quit", NULL);
     items[idx] = NULL;
 
     return VStackArray(items);

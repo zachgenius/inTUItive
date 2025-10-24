@@ -118,6 +118,23 @@ static void measure_component(struct component_t* component) {
             break;
         }
 
+        case COMPONENT_SPINNER: {
+            spinner_data_t* data = (spinner_data_t*)component->data;
+            int width = 2;  // Spinner character (Unicode may be wider)
+
+            if (data->text) {
+                width += 1 + strlen(data->text);  // Space + text
+            }
+
+            if (data->progress) {
+                width += 8;  // Space + "XXX.X%" (e.g., " 100.0%")
+            }
+
+            component->width = width;
+            component->height = 1;
+            break;
+        }
+
         case COMPONENT_VSTACK: {
             // VStack: width = max(children), height = sum(children)
             int max_width = 0;
@@ -237,6 +254,7 @@ void layout_position(struct component_t* component, int x, int y) {
         case COMPONENT_LIST:
         case COMPONENT_TABLE:
         case COMPONENT_SPACER:
+        case COMPONENT_SPINNER:
             break;
 
         case COMPONENT_MODAL: {
@@ -261,9 +279,10 @@ void layout_position(struct component_t* component, int x, int y) {
 
         case COMPONENT_SCROLLVIEW: {
             scrollview_data_t* data = (scrollview_data_t*)component->data;
-            if (data && data->content && data->scroll_offset) {
-                // Position content, offset by scroll amount
-                layout_position(data->content, x, y - *data->scroll_offset);
+            if (data && data->content) {
+                // Position content, offset by visual (animated) scroll amount
+                int visual_offset = (int)(data->visual_scroll_offset + 0.5f);
+                layout_position(data->content, x, y - visual_offset);
             }
             break;
         }

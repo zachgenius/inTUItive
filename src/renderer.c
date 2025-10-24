@@ -2,8 +2,10 @@
 #include "internal/component.h"
 #include "internal/terminal.h"
 #include "internal/tui.h"
+#include "internal/animation.h"
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 // Clipping rectangle state
 static bool clip_enabled = false;
@@ -150,8 +152,43 @@ void render_component(struct component_t* component) {
         case COMPONENT_LIST: {
             list_data_t* data = (list_data_t*)component->data;
             if (data && data->items) {
+                // Get external target scroll offset
+                int external_offset = data->scroll_offset ? *data->scroll_offset : 0;
+
+                // Check if target changed - if so, start smooth scroll animation
+                if (external_offset != data->target_scroll_offset) {
+                    // Clean up old animation if exists
+                    if (data->scroll_animation) {
+                        anim_free(data->scroll_animation);
+                    }
+
+                    // Create smooth scroll animation (150ms, ease-out)
+                    data->scroll_animation = anim_create(
+                        data->visual_scroll_offset,
+                        (float)external_offset,
+                        150,  // 150ms duration
+                        EASE_OUT
+                    );
+                    anim_start(data->scroll_animation);
+                    data->target_scroll_offset = external_offset;
+                }
+
+                // Update animation if active
+                if (data->scroll_animation) {
+                    if (anim_update(data->scroll_animation)) {
+                        data->visual_scroll_offset = anim_get_value(data->scroll_animation);
+                        tui_request_render();  // Continue animating
+                    } else {
+                        // Animation complete
+                        data->visual_scroll_offset = (float)data->target_scroll_offset;
+                        anim_free(data->scroll_animation);
+                        data->scroll_animation = NULL;
+                    }
+                }
+
+                // Use visual (animated) scroll offset for rendering
                 int visible_count = component->height;
-                int start_index = data->scroll_offset ? *data->scroll_offset : 0;
+                int start_index = (int)(data->visual_scroll_offset + 0.5f);  // Round to nearest
                 int end_index = start_index + visible_count;
 
                 if (end_index > data->item_count) {
@@ -187,6 +224,43 @@ void render_component(struct component_t* component) {
         case COMPONENT_SCROLLVIEW: {
             scrollview_data_t* data = (scrollview_data_t*)component->data;
             if (data && data->content) {
+                // Get external target scroll offset
+                int external_offset = data->scroll_offset ? *data->scroll_offset : 0;
+
+                // Check if target changed - if so, start smooth scroll animation
+                if (external_offset != data->target_scroll_offset) {
+                    // Clean up old animation if exists
+                    if (data->scroll_animation) {
+                        anim_free(data->scroll_animation);
+                    }
+
+                    // Create smooth scroll animation (150ms, ease-out)
+                    data->scroll_animation = anim_create(
+                        data->visual_scroll_offset,
+                        (float)external_offset,
+                        150,  // 150ms duration
+                        EASE_OUT
+                    );
+                    anim_start(data->scroll_animation);
+                    data->target_scroll_offset = external_offset;
+                }
+
+                // Update animation if active
+                if (data->scroll_animation) {
+                    if (anim_update(data->scroll_animation)) {
+                        data->visual_scroll_offset = anim_get_value(data->scroll_animation);
+                        tui_request_render();  // Continue animating
+                    } else {
+                        // Animation complete
+                        data->visual_scroll_offset = (float)data->target_scroll_offset;
+                        anim_free(data->scroll_animation);
+                        data->scroll_animation = NULL;
+                    }
+                }
+
+                // Use visual (animated) scroll offset
+                int scroll_offset = (int)(data->visual_scroll_offset + 0.5f);  // Round to nearest
+
                 // Clear the viewport area first
                 for (int row = 0; row < component->height; row++) {
                     term_move_cursor(component->x, component->y + row);
@@ -206,7 +280,6 @@ void render_component(struct component_t* component) {
 
                 // Draw scroll bar if there's scrollable content
                 if (data->show_indicators) {
-                    int scroll_offset = data->scroll_offset ? *data->scroll_offset : 0;
                     int content_height = data->content->height;
                     int viewport_height = component->height;
 
@@ -402,6 +475,101 @@ void render_component(struct component_t* component) {
                             term_write("  ");
                         }
                     }
+                }
+            }
+            break;
+        }
+
+        case COMPONENT_SPINNER: {
+            spinner_data_t* data = (spinner_data_t*)component->data;
+            if (!data) break;
+
+            // Skip rendering if clipped
+            if (render_is_clipped(component->x, component->y)) {
+                break;
+            }
+
+            // Update animation frame if enough time has passed
+            uint64_t now = anim_get_time_us();
+            uint64_t elapsed_ms = (now - data->last_update_time_us) / 1000;
+
+            if (elapsed_ms >= (uint64_t)data->speed_ms) {
+                // Determine frame count for this style
+                int frame_count;
+                const char** frames;
+                switch (data->style) {
+                    case SPINNER_BRAILLE:
+                        frame_count = 10;
+                        break;
+                    case SPINNER_CLASSIC:
+                        frame_count = 4;
+                        break;
+                    case SPINNER_DOTS:
+                    case SPINNER_ARROW:
+                        frame_count = 8;
+                        break;
+                    case SPINNER_BOX:
+                        frame_count = 4;
+                        break;
+                    default:
+                        frame_count = 10;
+                        break;
+                }
+
+                data->frame_index = (data->frame_index + 1) % frame_count;
+                data->last_update_time_us = now;
+
+                // Request re-render for next frame
+                tui_request_render();
+            }
+
+            // Render current frame
+            term_move_cursor(component->x, component->y);
+
+            // Get the appropriate frame
+            const char* frame = NULL;
+            switch (data->style) {
+                case SPINNER_BRAILLE: {
+                    const char* frames_braille[] = {"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"};
+                    frame = frames_braille[data->frame_index];
+                    break;
+                }
+                case SPINNER_CLASSIC: {
+                    const char* frames_classic[] = {"|", "/", "-", "\\"};
+                    frame = frames_classic[data->frame_index];
+                    break;
+                }
+                case SPINNER_DOTS: {
+                    const char* frames_dots[] = {"⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"};
+                    frame = frames_dots[data->frame_index];
+                    break;
+                }
+                case SPINNER_BOX: {
+                    const char* frames_box[] = {"◰", "◳", "◲", "◱"};
+                    frame = frames_box[data->frame_index];
+                    break;
+                }
+                case SPINNER_ARROW: {
+                    const char* frames_arrow[] = {"←", "↖", "↑", "↗", "→", "↘", "↓", "↙"};
+                    frame = frames_arrow[data->frame_index];
+                    break;
+                }
+            }
+
+            if (frame) {
+                term_write(frame);
+
+                // Render text if present
+                if (data->text) {
+                    term_write(" ");
+                    term_write(data->text);
+                }
+
+                // Render progress if present
+                if (data->progress) {
+                    char progress_str[32];
+                    snprintf(progress_str, sizeof(progress_str), " %.1f%%", *data->progress);
+                    term_write(progress_str);
                 }
             }
             break;

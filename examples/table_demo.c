@@ -32,15 +32,18 @@ component_t* app(void) {
     });
 
     return VStack(
-        Bold(FgColor(Text("=== Table Component Demo ==="), COLOR_BRIGHT_CYAN)),
-        Text(""),
-        Text("Table with borders:"),
+        Text("=== Table Component Demo ===", &(TextConfig){
+            .fg_color = COLOR_BRIGHT_CYAN,
+            .style = STYLE_BOLD
+        }),
+        Text("", NULL),
+        Text("Table with borders:", NULL),
         table1,
-        Text(""),
-        Text("Table without borders:"),
+        Text("", NULL),
+        Text("Table without borders:", NULL),
         table2,
-        Text(""),
-        FgColor(Text("Press 'q' to quit"), COLOR_BRIGHT_GREEN),
+        Text("", NULL),
+        Text("Press 'q' to quit", &(TextConfig){ .fg_color = COLOR_BRIGHT_GREEN }),
         NULL
     );
 }

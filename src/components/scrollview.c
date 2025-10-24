@@ -29,6 +29,11 @@ component_t* ScrollView(component_t* content, int* scroll_offset, ScrollConfig c
     data->track_char = config.track_char ? config.track_char : "│";
     data->show_arrows = config.show_arrows;
 
+    // Initialize smooth scrolling state
+    data->visual_scroll_offset = 0.0f;
+    data->target_scroll_offset = 0;
+    data->scroll_animation = NULL;
+
     component_set_data(scrollview, data);
 
     // Make ScrollView focusable so it can receive arrow key events

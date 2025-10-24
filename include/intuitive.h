@@ -120,10 +120,34 @@ bool tui_get_terminal_size(int* width, int* height);
 /* ========== Components ========== */
 
 /**
- * Create a Text component
- * Displays the given string
+ * Text configuration (optional styling)
+ * Unspecified fields default to: fg_color=COLOR_DEFAULT, bg_color=COLOR_DEFAULT, style=STYLE_NONE
  */
-component_t* Text(const char* str);
+typedef struct {
+    color_t fg_color;       // Foreground color (default: COLOR_DEFAULT)
+    color_t bg_color;       // Background color (default: COLOR_DEFAULT)
+    style_t style;          // Text style flags (default: STYLE_NONE, can combine with |)
+} TextConfig;
+
+/**
+ * Create a Text component
+ * First parameter is the text content (required)
+ * Second parameter is optional styling config (pass NULL for default styling)
+ *
+ * Example (simple):
+ *   Text("Hello", NULL)
+ *
+ * Example (colored):
+ *   Text("Error", &(TextConfig){ .fg_color = COLOR_RED })
+ *
+ * Example (fully styled):
+ *   Text("Important!", &(TextConfig){
+ *       .fg_color = COLOR_BRIGHT_RED,
+ *       .bg_color = COLOR_BLACK,
+ *       .style = STYLE_BOLD | STYLE_UNDERLINE
+ *   })
+ */
+component_t* Text(const char* content, TextConfig* config);
 
 /**
  * Create a VStack (vertical stack) component
@@ -341,58 +365,59 @@ typedef struct {
  */
 component_t* Table(TableConfig config);
 
-/* ========== Style Modifiers ========== */
+/**
+ * Spinner style types
+ */
+typedef enum {
+    SPINNER_BRAILLE,  /* Braille dots spinner */
+    SPINNER_CLASSIC,  /* Classic | / - \ spinner */
+    SPINNER_DOTS,     /* Braille dots variant */
+    SPINNER_BOX,      /* Box corners spinner */
+    SPINNER_ARROW,    /* Arrow spinner */
+} spinner_style_t;
 
 /**
- * Set both foreground and background colors for a component
- * Returns the same component for chaining
- *
- * Example: Color(Text("Error!"), COLOR_RED, COLOR_DEFAULT)
+ * Spinner configuration
  */
-component_t* Color(component_t* comp, color_t fg, color_t bg);
+typedef struct {
+    spinner_style_t style;  // Spinner animation style
+    int speed;              // Milliseconds per frame (default: 100)
+    const char* text;       // Optional text label (can be NULL)
+    float* progress;        // Optional progress percentage 0-100 (can be NULL)
+} SpinnerConfig;
 
 /**
- * Set foreground color for a component
- * Returns the same component for chaining
+ * Create a Spinner component
+ * Displays an animated loading indicator
  *
- * Example: FgColor(Text("Success!"), COLOR_GREEN)
- */
-component_t* FgColor(component_t* comp, color_t fg);
-
-/**
- * Set background color for a component
- * Returns the same component for chaining
+ * Example (basic):
+ *   Spinner((SpinnerConfig){
+ *       .style = SPINNER_BRAILLE,
+ *       .speed = 100,
+ *       .text = "Loading..."
+ *   })
  *
- * Example: BgColor(Text("Highlighted"), COLOR_YELLOW)
+ * Example (with progress):
+ *   float progress = 45.0f;
+ *   Spinner((SpinnerConfig){
+ *       .style = SPINNER_DOTS,
+ *       .speed = 80,
+ *       .text = "Processing...",
+ *       .progress = &progress
+ *   })
  */
-component_t* BgColor(component_t* comp, color_t bg);
-
-/**
- * Make a component's text bold
- * Returns the same component for chaining
- *
- * Example: Bold(Text("Important!"))
- */
-component_t* Bold(component_t* comp);
-
-/**
- * Underline a component's text
- * Returns the same component for chaining
- *
- * Example: Underline(Text("Link"))
- */
-component_t* Underline(component_t* comp);
+component_t* Spinner(SpinnerConfig config);
 
 /* ========== Convenience Macros ========== */
 
 /**
- * Common color shortcuts for frequently used combinations
+ * Common text style shortcuts
  */
-#define ErrorText(text) Bold(FgColor(Text(text), COLOR_BRIGHT_RED))
-#define SuccessText(text) Bold(FgColor(Text(text), COLOR_BRIGHT_GREEN))
-#define WarningText(text) Bold(FgColor(Text(text), COLOR_BRIGHT_YELLOW))
-#define InfoText(text) FgColor(Text(text), COLOR_BRIGHT_CYAN))
-#define MutedText(text) FgColor(Text(text), COLOR_BRIGHT_BLACK))
+#define ErrorText(text) Text(text, &(TextConfig){ .fg_color = COLOR_BRIGHT_RED, .style = STYLE_BOLD })
+#define SuccessText(text) Text(text, &(TextConfig){ .fg_color = COLOR_BRIGHT_GREEN, .style = STYLE_BOLD })
+#define WarningText(text) Text(text, &(TextConfig){ .fg_color = COLOR_BRIGHT_YELLOW, .style = STYLE_BOLD })
+#define InfoText(text) Text(text, &(TextConfig){ .fg_color = COLOR_BRIGHT_CYAN })
+#define MutedText(text) Text(text, &(TextConfig){ .fg_color = COLOR_BRIGHT_BLACK })
 
 /**
  * Config struct initializers with common defaults

@@ -73,24 +73,31 @@ static component_t* app(void) {
              state.list_scroll);
 
     return VStack(
-        Bold(FgColor(Text("=== Mouse Support Demo ==="), COLOR_BRIGHT_CYAN)),
-        Text(""),
-        FgColor(Text("🖱️  This demo showcases mouse interaction!"), COLOR_BRIGHT_YELLOW),
-        Text(""),
+        Text("=== Mouse Support Demo ===", &(TextConfig){
+            .fg_color = COLOR_BRIGHT_CYAN,
+            .style = STYLE_BOLD
+        }),
+        Text("", NULL),
+        Text("🖱️  This demo showcases mouse interaction!", &(TextConfig){
+            .fg_color = COLOR_BRIGHT_YELLOW
+        }),
+        Text("", NULL),
 
-        Text("Try clicking the buttons:"),
+        Text("Try clicking the buttons:", NULL),
         HStack(
             Button("Click Me!", button_clicked),
-            Text("  "),
+            Text("  ", NULL),
             Button("Reset Counter", reset_counter),
             NULL
         ),
-        Text(count_str),
-        Text(""),
+        Text(count_str, NULL),
+        Text("", NULL),
 
-        Text("Try clicking items in the list:"),
-        FgColor(Text("(Press Tab to focus, then use ↑↓ arrow keys or mouse wheel ▲▼)"), COLOR_BRIGHT_BLACK),
-        FgColor(Text(scroll_info), COLOR_YELLOW),
+        Text("Try clicking items in the list:", NULL),
+        Text("(Press Tab to focus, then use ↑↓ arrow keys or mouse wheel ▲▼)", &(TextConfig){
+            .fg_color = COLOR_BRIGHT_BLACK
+        }),
+        Text(scroll_info, &(TextConfig){ .fg_color = COLOR_YELLOW }),
         List((ListConfig){
             .items = items,
             .count = 20,
@@ -99,11 +106,11 @@ static component_t* app(void) {
             .selected_index = &state.selected_item,
             .on_select = on_item_select
         }),
-        Text(""),
+        Text("", NULL),
 
-        FgColor(Text(state.message), COLOR_BRIGHT_GREEN),
-        Text(""),
-        FgColor(Text("Press 'q' to quit"), COLOR_BRIGHT_BLACK),
+        Text(state.message, &(TextConfig){ .fg_color = COLOR_BRIGHT_GREEN }),
+        Text("", NULL),
+        Text("Press 'q' to quit", &(TextConfig){ .fg_color = COLOR_BRIGHT_BLACK }),
         NULL
     );
 }

@@ -13,7 +13,7 @@ component_t* app(void) {
     for (int i = 0; i < 20; i++) {
         char buf[64];
         snprintf(buf, sizeof(buf), "Line %d - This is some content", i + 1);
-        items[i] = Text(buf);
+        items[i] = Text(buf, NULL);
     }
     items[20] = NULL;
 
@@ -23,19 +23,22 @@ component_t* app(void) {
     snprintf(debug, sizeof(debug), "Scroll position: %d", state.scroll_pos);
 
     return VStack(
-        Bold(FgColor(Text("ScrollView Demo"), COLOR_BRIGHT_CYAN)),
-        Text(""),
-        Text(debug),
-        Text("Content (showing 10 of 20 lines):"),
+        Text("ScrollView Demo", &(TextConfig){
+            .fg_color = COLOR_BRIGHT_CYAN,
+            .style = STYLE_BOLD
+        }),
+        Text("", NULL),
+        Text(debug, NULL),
+        Text("Content (showing 10 of 20 lines):", NULL),
         ScrollView(long_content, &state.scroll_pos, (ScrollConfig){
             .max_height = 10,
             .show_indicators = true
         }),
-        Text(""),
-        FgColor(Text("Controls:"), COLOR_BRIGHT_GREEN),
-        Text("  Tab - Focus scrollview"),
-        Text("  Up/Down arrows - Scroll"),
-        Text("  q - Quit"),
+        Text("", NULL),
+        Text("Controls:", &(TextConfig){ .fg_color = COLOR_BRIGHT_GREEN }),
+        Text("  Tab - Focus scrollview", NULL),
+        Text("  Up/Down arrows - Scroll", NULL),
+        Text("  q - Quit", NULL),
         NULL
     );
 }

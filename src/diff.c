@@ -143,6 +143,19 @@ static unsigned int hash_component_data(struct component_t* component) {
             break;
         }
 
+        case COMPONENT_SPINNER: {
+            spinner_data_t* data = (spinner_data_t*)component->data;
+            hash = hash_int(data->style);
+            if (data->text) {
+                hash = hash_combine(hash, hash_string(data->text));
+            }
+            if (data->progress) {
+                hash = hash_combine(hash, hash_int((int)(*data->progress * 10)));
+            }
+            // Note: frame_index and timing info are animation state, not content
+            break;
+        }
+
         case COMPONENT_VSTACK:
         case COMPONENT_HSTACK:
             // For stacks, hash alignment and spacing if they have data
