@@ -140,3 +140,26 @@ void focus_clear(void) {
     focusable_count = 0;
     current_focus_index = -1;
 }
+
+bool focus_set(struct component_t* component) {
+    if (!component || focusable_count == 0) {
+        return false;
+    }
+
+    // Find the component in the focusable list
+    for (int i = 0; i < focusable_count; i++) {
+        if (focusable_list[i] == component) {
+            // Clear old focus
+            if (current_focus_index >= 0 && current_focus_index < focusable_count) {
+                focusable_list[current_focus_index]->focused = false;
+            }
+
+            // Set new focus
+            current_focus_index = i;
+            focusable_list[current_focus_index]->focused = true;
+            return true;
+        }
+    }
+
+    return false;
+}

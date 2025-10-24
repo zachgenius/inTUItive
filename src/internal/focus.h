@@ -30,3 +30,9 @@ struct component_t* focus_get_current(void);
  * Clear all focus state
  */
 void focus_clear(void);
+
+/**
+ * Set focus to a specific component
+ * Returns true if focus was set successfully
+ */
+bool focus_set(struct component_t* component);

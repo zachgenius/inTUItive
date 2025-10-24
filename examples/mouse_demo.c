@@ -37,27 +37,40 @@ static void on_item_select(int index) {
 }
 
 static component_t* app(void) {
-    // Create list items
+    // Create list items - make it long enough to scroll
     static const char* items[] = {
         "📋 Item 1 - Click me!",
         "📋 Item 2 - Or me!",
         "📋 Item 3 - Try scrolling too!",
-        "📋 Item 4",
-        "📋 Item 5",
-        "📋 Item 6",
-        "📋 Item 7",
-        "📋 Item 8",
-        "📋 Item 9",
-        "📋 Item 10",
-        "📋 Item 11",
-        "📋 Item 12",
-        "📋 Item 13",
-        "📋 Item 14",
-        "📋 Item 15",
+        "📋 Item 4 - Scroll with mouse wheel",
+        "📋 Item 5 - Or use arrow keys",
+        "📋 Item 6 - Mouse and keyboard both work",
+        "📋 Item 7 - Keep scrolling...",
+        "📋 Item 8 - Still more items below",
+        "📋 Item 9 - Getting closer",
+        "📋 Item 10 - Halfway there!",
+        "📋 Item 11 - More to go",
+        "📋 Item 12 - Keep going",
+        "📋 Item 13 - Almost done",
+        "📋 Item 14 - One more",
+        "📋 Item 15 - You found me!",
+        "📋 Item 16 - Wait, there's more?",
+        "📋 Item 17 - Yes, more items",
+        "📋 Item 18 - Keep scrolling",
+        "📋 Item 19 - Nearly at the end",
+        "📋 Item 20 - This is the last one!",
     };
 
     char count_str[64];
     snprintf(count_str, sizeof(count_str), "Click count: %d", state.click_count);
+
+    // Show scroll position
+    char scroll_info[64];
+    snprintf(scroll_info, sizeof(scroll_info),
+             "Showing items %d-%d of 20 (scroll: %d)",
+             state.list_scroll + 1,
+             state.list_scroll + 8 < 20 ? state.list_scroll + 8 : 20,
+             state.list_scroll);
 
     return VStack(
         Bold(FgColor(Text("=== Mouse Support Demo ==="), COLOR_BRIGHT_CYAN)),
@@ -76,10 +89,11 @@ static component_t* app(void) {
         Text(""),
 
         Text("Try clicking items in the list:"),
-        FgColor(Text("(You can also scroll with mouse wheel!)"), COLOR_BRIGHT_BLACK),
+        FgColor(Text("(Press Tab to focus, then use ↑↓ arrow keys or mouse wheel ▲▼)"), COLOR_BRIGHT_BLACK),
+        FgColor(Text(scroll_info), COLOR_YELLOW),
         List((ListConfig){
             .items = items,
-            .count = 15,
+            .count = 20,
             .max_visible = 8,
             .scroll_offset = &state.list_scroll,
             .selected_index = &state.selected_item,

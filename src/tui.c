@@ -285,7 +285,7 @@ static bool handle_mouse_scroll(struct component_t* component, int delta) {
     if (component->type == COMPONENT_LIST) {
         list_data_t* data = (list_data_t*)component->data;
         if (data && data->scroll_offset) {
-            int new_offset = *data->scroll_offset - delta;  // Negative delta = scroll down
+            int new_offset = *data->scroll_offset + delta;  // Positive delta = scroll down
             if (new_offset < 0) new_offset = 0;
 
             int max_offset = data->item_count - data->max_visible_items;
@@ -300,7 +300,7 @@ static bool handle_mouse_scroll(struct component_t* component, int delta) {
     } else if (component->type == COMPONENT_SCROLLVIEW) {
         scrollview_data_t* data = (scrollview_data_t*)component->data;
         if (data && data->scroll_offset && data->content) {
-            int new_offset = *data->scroll_offset - delta;  // Negative delta = scroll down
+            int new_offset = *data->scroll_offset + delta;  // Positive delta = scroll down
             if (new_offset < 0) new_offset = 0;
 
             int max_offset = data->content->height - data->max_visible_height;
@@ -401,24 +401,27 @@ void tui_run(void) {
                 mouse_button_t button = event.data.mouse.button;
                 mouse_action_t action = event.data.mouse.action;
 
-                // Only handle left click press for now
-                if (button == MOUSE_LEFT && action == MOUSE_PRESS) {
-                    struct component_t* clicked = find_component_at(tui_state.root, mouse_x, mouse_y);
-                    if (clicked) {
-                        bool handled = handle_mouse_click(clicked, mouse_x, mouse_y);
-                        if (handled) {
-                            tui_state.needs_render = true;
-                        }
+                // Find component under mouse
+                struct component_t* target = find_component_at(tui_state.root, mouse_x, mouse_y);
+
+                // Focus follows mouse - if the component is focusable, focus it
+                if (target && target->focusable && !target->focused) {
+                    focus_set(target);
+                    tui_state.needs_render = true;
+                }
+
+                // Handle left click
+                if (button == MOUSE_LEFT && action == MOUSE_PRESS && target) {
+                    bool handled = handle_mouse_click(target, mouse_x, mouse_y);
+                    if (handled) {
+                        tui_state.needs_render = true;
                     }
                 }
                 // Handle scroll wheel
-                else if ((button == MOUSE_SCROLL_UP || button == MOUSE_SCROLL_DOWN) && action == MOUSE_PRESS) {
-                    struct component_t* scrolled = find_component_at(tui_state.root, mouse_x, mouse_y);
-                    if (scrolled) {
-                        bool handled = handle_mouse_scroll(scrolled, button == MOUSE_SCROLL_UP ? -1 : 1);
-                        if (handled) {
-                            tui_state.needs_render = true;
-                        }
+                else if ((button == MOUSE_SCROLL_UP || button == MOUSE_SCROLL_DOWN) && action == MOUSE_PRESS && target) {
+                    bool handled = handle_mouse_scroll(target, button == MOUSE_SCROLL_UP ? -1 : 1);
+                    if (handled) {
+                        tui_state.needs_render = true;
                     }
                 }
             }
